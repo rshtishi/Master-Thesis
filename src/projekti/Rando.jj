@@ -1,0 +1,67 @@
+
+
+options {
+  STATIC = false;
+}
+
+
+
+PARSER_BEGIN(Rando)
+
+package projekti;
+import java.io.PrintStream;
+import java.util.Map;
+import java.util.HashMap;
+
+
+
+public class Rando
+{
+  Map< String,String> varList=new HashMap< String , String>();
+  
+  public static void main(String args[]) throws ParseException
+  {
+     Rando parser = new Rando(System.in);
+     parser.Start(System.out);
+  }
+  double previousValue=0.0;
+
+}
+
+PARSER_END(Rando)
+
+
+SKIP:{
+  " " | "\t" | "\n" | "\r"}
+TOKEN:{<EOL:"\n" | "\r" | "\r\n" >}
+TOKEN:{< PLUS:"+">}
+TOKEN:{< MINUS:"-">}
+TOKEN:{< TIMES:"*">}
+TOKEN:{< DIVIDE:"/">}
+TOKEN:{< EQUAL:"=">}
+TOKEN:{<NUMBER: < DIGITS >| < DIGITS >"."< DIGITS >  | < DIGITS >"." | "."< DIGITS >>}
+TOKEN:{< #DIGITS:(["0"-"9"])+>}
+TOKEN:{< OPEN_PAR:"(">}
+TOKEN:{< CLOSE_PAR:")">}
+TOKEN:{< PREVIOUS:"$">}
+TOKEN:{ < FILLIM: "Fillim">}
+TOKEN:{ < FUND: "Fund">}
+TOKEN:{ < LEXO: "Lexo">}
+TOKEN:{< NDRYSHORE:( ((["a"-"z"])+ | (["A"-"Z"])+ ) ("_" | "-" | ["a"-"z"] | ["A"-"Z"] | ["0"-"9"])*)>}
+
+void Start(PrintStream printStream) throws NumberFormatException:
+{}
+{
+  < FILLIM>
+
+		< LEXO > < NDRYSHORE> < EQUAL> < NUMBER >
+		{
+		  printStream.println("Ok");		}
+  	
+  < FUND >
+  < EOL>
+}
+
+
+
+
