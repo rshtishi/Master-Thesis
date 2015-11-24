@@ -12,12 +12,14 @@ package projekti;
 import java.io.PrintStream;
 import java.util.Map;
 import java.util.HashMap;
+import java.util.Scanner;
 
 
 
 public class Rando
 {
   Map< String,String> varList=new HashMap< String , String>();
+  Scanner jin=new Scanner(System.in);
   
   public static void main(String args[]) throws ParseException
   {
@@ -47,16 +49,34 @@ TOKEN:{< PREVIOUS:"$">}
 TOKEN:{ < FILLIM: "Fillim">}
 TOKEN:{ < FUND: "Fund">}
 TOKEN:{ < LEXO: "Lexo">}
+TOKEN:{ < SHKRUAJ: "Shkruaj">}
 TOKEN:{< NDRYSHORE:( ((["a"-"z"])+ | (["A"-"Z"])+ ) ("_" | "-" | ["a"-"z"] | ["A"-"Z"] | ["0"-"9"])*)>}
+TOKEN:{< FJALI:( ("'") (["a"-"z"] | ["A"-"Z"] |  "_"  | "-" | "?"  | ["0"-"9"])*("'"))*>}
 
 void Start(PrintStream printStream) throws NumberFormatException:
-{}
+{Token t;}
 {
   < FILLIM>
 
-		< LEXO > < NDRYSHORE> 
+	(	  	< LEXO > t=< NDRYSHORE> 
 		{
-		  printStream.println("Ok");		}
+		  String var=t.image;
+		  String value=jin.next();
+		  varList.put(var,value);		}
+		|
+		< SHKRUAJ>  t= < NDRYSHORE>
+		{
+		  if(varList.containsKey(t.image))
+		  {
+		    printStream.println(varList.get(t.image));		  }
+		  else
+		  {
+		    var=t.image;
+		    varList.put(var,"null");
+		    printStream.println(varList.get(t.image));
+		    		  }		}
+	)*
+		
   	
   < FUND >
   < EOL>
