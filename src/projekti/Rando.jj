@@ -54,7 +54,7 @@ void Start(PrintStream printStream) throws NumberFormatException:
 {
   < FILLIM>
 
-		< LEXO > < NDRYSHORE> < EQUAL> < NUMBER >
+		< LEXO > < NDRYSHORE> 
 		{
 		  printStream.println("Ok");		}
   	
