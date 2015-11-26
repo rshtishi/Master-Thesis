@@ -51,7 +51,7 @@ TOKEN:{ < FUND: "Fund">}
 TOKEN:{ < LEXO: "Lexo">}
 TOKEN:{ < SHKRUAJ: "Shkruaj">}
 TOKEN:{< NDRYSHORE:( ((["a"-"z"])+ | (["A"-"Z"])+ ) ("_" | "-" | ["a"-"z"] | ["A"-"Z"] | ["0"-"9"])*)>}
-TOKEN:{< FJALI:( ("'") (["a"-"z"] | ["A"-"Z"] |  "_"  | "-" | "?"  | ["0"-"9"])*("'"))*>}
+TOKEN:{< FJALI:( ("'") (["a"-"z"] | ["A"-"Z"] |  "_"  | "-" | "?"  | "#" | "@"| "$" | "!" | "*" | "="| "/" | "*" | " " | ["0"-"9"])*("'"))*>}
 
 void Start(PrintStream printStream) throws NumberFormatException:
 {Token t;}
@@ -64,6 +64,7 @@ void Start(PrintStream printStream) throws NumberFormatException:
 		  String value=jin.next();
 		  varList.put(var,value);		}
 		|
+		LOOKAHEAD(6)
 		< SHKRUAJ>  t= < NDRYSHORE>
 		{
 		  if(varList.containsKey(t.image))
@@ -75,6 +76,12 @@ void Start(PrintStream printStream) throws NumberFormatException:
 		    varList.put(var,"null");
 		    printStream.println(varList.get(t.image));
 		    		  }		}
+	   |
+	   < SHKRUAJ>  t= < FJALI>
+	   {
+	     String fjaliSem=t.image;
+	     String fjali=fjaliSem.replace("'","");
+	     System.out.println(fjali);	   }	 
 	)*
 		
   	
