@@ -24,7 +24,7 @@ public class Rando
   public static void main(String args[]) throws ParseException
   {
      Rando parser = new Rando(System.in);
-     parser.Start(System.out);
+     parser.Start();
   }
   double previousValue=0.0;
 
@@ -32,9 +32,12 @@ public class Rando
 
 PARSER_END(Rando)
 
-
-SKIP:{
-  " " | "\t" | "\n" | "\r"}
+
+
+SKIP:
+{
+  " " | "\t" | "\n" | "\r"
+}
 TOKEN:{<EOL:"\n" | "\r" | "\r\n" >}
 TOKEN:{< PLUS:"+">}
 TOKEN:{< MINUS:"-">}
@@ -53,40 +56,41 @@ TOKEN:{ < SHKRUAJ: "Shkruaj">}
 TOKEN:{< NDRYSHORE:( ((["a"-"z"])+ | (["A"-"Z"])+ ) ("_" | "-" | ["a"-"z"] | ["A"-"Z"] | ["0"-"9"])*)>}
 TOKEN:{< FJALI:( ("'") (["a"-"z"] | ["A"-"Z"] |  "_"  | "-" | "?"  | "#" | "@"| "$" | "!" | "*" | "="| "/" | "*" | " " | ["0"-"9"])*("'"))*>}
 
-void Start(PrintStream printStream) throws NumberFormatException:
+void Start() throws NumberFormatException:
 {Token t;}
 {
   < FILLIM>
+    Action()
+  < FUND >
+  < EOL>
+}
 
-	(	  	< LEXO > t=< NDRYSHORE> 
+public void Action():
+{Token t;}
+{		(
+	  	< LEXO > t=< NDRYSHORE> 
 		{
 		  String var=t.image;
 		  String value=jin.next();
-		  varList.put(var,value);		}
+		  varList.put(var,value);
+		}
 		|
-		LOOKAHEAD(6)
 		< SHKRUAJ>  t= < NDRYSHORE>
 		{
 		  if(varList.containsKey(t.image))
 		  {
-		    printStream.println(varList.get(t.image));		  }
+		    System.out.println(varList.get(t.image));
+		  }
 		  else
 		  {
 		    var=t.image;
 		    varList.put(var,"null");
-		    printStream.println(varList.get(t.image));
-		    		  }		}
-	   |
-	   < SHKRUAJ>  t= < FJALI>
-	   {
-	     String fjaliSem=t.image;
-	     String fjali=fjaliSem.replace("'","");
-	     System.out.println(fjali);	   }	 
+		    System.out.println(varList.get(t.image));
+		    
+		  }
+		}
+	 
 	)*
-		
-  	
-  < FUND >
-  < EOL>
 }
 
 
