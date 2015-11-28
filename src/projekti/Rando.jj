@@ -10,9 +10,7 @@ PARSER_BEGIN(Rando)
 
 package projekti;
 import java.io.PrintStream;
-import java.util.Map;
-import java.util.HashMap;
-import java.util.Scanner;
+import java.util.*;
 
 
 
@@ -20,6 +18,11 @@ public class Rando
 {
   Map< String,String> varList=new HashMap< String , String>();
   Scanner jin=new Scanner(System.in);
+
+  public static boolean isNumeric(String str)
+  {
+  return str.matches("-?\\d+(\\.\\d+)?");  //match a number with optional '-' and decimal.
+  }
   
   public static void main(String args[]) throws ParseException
   {
@@ -66,7 +69,7 @@ void Start() throws NumberFormatException:
 }
 
 public void Action():
-{Token t;}
+{Token t,v;}
 {		(
 	  	< LEXO > t=< NDRYSHORE> 
 		{
@@ -89,6 +92,15 @@ public void Action():
 		    
 		  }
 		}
+		|
+		t= < NDRYSHORE> < EQUAL>   (v= < FJALI> | v=<NUMBER >)
+		{
+		  
+	      String ndryshore=t.image;
+		  String vlera=v.image;
+	      vlera=vlera.replace("'","");
+	      varList.put(ndryshore,vlera);		}
+       
 	 
 	)*
 }
