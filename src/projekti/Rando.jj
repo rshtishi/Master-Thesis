@@ -17,6 +17,7 @@ import java.util.*;
 public class Rando
 {
   Map< String,String> varList=new HashMap< String , String>();
+  Map< String,String> typeList=new HashMap< String,String>();
   Scanner jin=new Scanner(System.in);
 
   public static boolean isNumeric(String str)
@@ -47,6 +48,7 @@ TOKEN:{< MINUS:"-">}
 TOKEN:{< TIMES:"*">}
 TOKEN:{< DIVIDE:"/">}
 TOKEN:{< EQUAL:"=">}
+TOKEN:{< COMMA:",">}
 TOKEN:{<NUMBER: < DIGITS >| < DIGITS >"."< DIGITS >  | < DIGITS >"." | "."< DIGITS >>}
 TOKEN:{< #DIGITS:(["0"-"9"])+>}
 TOKEN:{< OPEN_PAR:"(">}
@@ -75,29 +77,102 @@ public void Action():
 		{
 		  String var=t.image;
 		  String value=jin.next();
-		  varList.put(var,value);
-		}
-		|
-		< SHKRUAJ>  t= < NDRYSHORE>
-		{
-		  if(varList.containsKey(t.image))
+		  if(isNumeric(value))
 		  {
-		    System.out.println(varList.get(t.image));
+		    typeList.put(var,"Number");
 		  }
 		  else
 		  {
-		    var=t.image;
-		    varList.put(var,"null");
-		    System.out.println(varList.get(t.image));
-		    
+		    typeList.put(var,"String");
 		  }
+		  value=value.replace("'","");
+		  varList.put(var,value);   
 		}
+		(
+		  < COMMA> t=< NDRYSHORE>
+		  {
+			  var=t.image;
+			  value=jin.next();
+			  if(isNumeric(value))
+			  {
+			    typeList.put(var,"Number");
+			  }
+			  else
+			  {
+			    typeList.put(var,"String");
+			  }
+			  value=value.replace("'","");
+			  varList.put(var,value);   
+		  } 		)*
+		
 		|
+		
+		< SHKRUAJ>  (t= < NDRYSHORE> | t=< FJALI>)
+		{
+		  if(t.kind==NDRYSHORE)
+		  {
+			  if(varList.containsKey(t.image))
+			  {
+			    System.out.print(varList.get(t.image));
+			  }
+			  else
+			  {
+			    var=t.image;
+			    varList.put(var,"null");
+			    System.out.print(varList.get(t.image));
+			    
+			  }
+		  }
+		  else
+		  {
+		        value=t.image;
+		    	value=value.replace("'","");
+		    	System.out.print(value);		  }
+		}
+		(
+		  < COMMA>  (t= < NDRYSHORE> | t=< FJALI>)
+			{
+			  if(t.kind==NDRYSHORE)
+			  {
+				  if(varList.containsKey(t.image))
+				  {
+				    System.out.print(varList.get(t.image));
+				  }
+				  else
+				  {
+				    var=t.image;
+				    varList.put(var,"null");
+				    System.out.print(varList.get(t.image));
+				    
+				  }
+			  }
+			  else
+			  {
+			        value=t.image;
+			    	value=value.replace("'","");
+			    	System.out.print(value);
+			  }
+			}		)*
+		{
+		  System.out.println();		}
+		
+		|
+		
 		t= < NDRYSHORE> < EQUAL>   (v= < FJALI> | v=<NUMBER >)
 		{
 		  
 	      String ndryshore=t.image;
 		  String vlera=v.image;
+		  
+		  if(isNumeric(vlera))
+		  {
+		    typeList.put(ndryshore,"Number");
+		  }
+		  else
+		  {
+		    typeList.put(ndryshore,"String");
+		  }
+		  
 	      vlera=vlera.replace("'","");
 	      varList.put(ndryshore,vlera);		}
        
