@@ -1,7 +1,7 @@
 
 
 options {
-  STATIC = false;
+  STATIC = true;
 }
 
 
@@ -16,20 +16,55 @@ import java.util.*;
 
 public class Rando
 {
-  Map< String,String> varList=new HashMap< String , String>();
-  Map< String,String> typeList=new HashMap< String,String>();
-  Scanner jin=new Scanner(System.in);
+  //Deklarimi i tabeles se simboleve
+  public static LookupTable symbolTable=new LookupSymbolTable();
+  //Deklari i objekti te cilet do jape mundesi perdoruesit te fuse te dhena
+  public static  Scanner jin=new Scanner(System.in);
 
+  //Metoda qe do te kontrolloje per 
   public static boolean isNumeric(String str)
   {
   return str.matches("-?\\d+(\\.\\d+)?");  //match a number with optional '-' and decimal.
   }
-  
+
+  //Metoda Kryesore qe therret te gjithe aplikacionin
   public static void main(String args[]) throws ParseException
   {
      Rando parser = new Rando(System.in);
-     parser.Start();
+     int x=0;
+     while (x==0)
+    {
+      System.out.println("Reading from standard input...");
+      try
+      {
+        switch (Rando.one_line())
+        {
+          case 0 : 
+          System.out.println("OK.");
+          break;
+          case 1 : 
+          System.out.println("Terminate.");
+          x=1;
+          break;
+          default : 
+          break;
+        }
+      }
+      catch (Exception e)
+      {
+        System.out.println("Error.");
+        Rando.ReInit(System.in);
+      }
+      catch (Error e)
+      {
+        System.out.println("Oops.");
+        System.out.println(e.getMessage());
+        break;
+      }
+    }
+     //parser.Start();
   }
+  
   double previousValue=0.0;
 
 }
@@ -38,11 +73,9 @@ PARSER_END(Rando)
 
 
 
-SKIP:
-{
-  " " | "\t" | "\n" | "\r"
-}
-TOKEN:{<EOL:"\n" | "\r" | "\r\n" >}
+SKIP :
+{ " " | "\t" | "\n" | "\r" | "\r\n" }
+
 TOKEN:{< PLUS:"+">}
 TOKEN:{< MINUS:"-">}
 TOKEN:{< TIMES:"*">}
@@ -61,49 +94,69 @@ TOKEN:{ < SHKRUAJ: "Shkruaj">}
 TOKEN:{< NDRYSHORE:( ((["a"-"z"])+ | (["A"-"Z"])+ ) ("_" | "-" | ["a"-"z"] | ["A"-"Z"] | ["0"-"9"])*)>}
 TOKEN:{< FJALI:( ("'") (["a"-"z"] | ["A"-"Z"] |  "_"  | "-" | "?"  | "#" | "@"| "$" | "!" | "*" | "="| "/" | "*" | " " | ["0"-"9"])*("'"))*>}
 
+
+/** Looping*/
+int one_line() :
+{}
+{
+   Start() ";"
+  {
+    return 0;
+  }
+| ";"
+  {
+    return 1;
+  }
+}
+
 void Start() throws NumberFormatException:
 {Token t;}
 {
   < FILLIM>
     Action()
   < FUND >
-  < EOL>
+  
 }
 
 public void Action():
 {Token t,v;}
-{		(
+{
+		(
 	  	< LEXO > t=< NDRYSHORE> 
 		{
-		  String var=t.image;
+		  
+		  String id=t.image;
 		  String value=jin.next();
+		  String type;
 		  if(isNumeric(value))
 		  {
-		    typeList.put(var,"Number");
+		    type="Number";
 		  }
 		  else
 		  {
-		    typeList.put(var,"String");
+		    type="String";
 		  }
 		  value=value.replace("'","");
-		  varList.put(var,value);   
+		  symbolTable.put(id,new Symbol(value,type));   
 		}
 		(
 		  < COMMA> t=< NDRYSHORE>
 		  {
-			  var=t.image;
+		     
+			  id=t.image;
 			  value=jin.next();
 			  if(isNumeric(value))
 			  {
-			    typeList.put(var,"Number");
+			    type="Number";
 			  }
 			  else
 			  {
-			    typeList.put(var,"String");
+			    type="String";
 			  }
 			  value=value.replace("'","");
-			  varList.put(var,value);   
-		  } 		)*
+			  symbolTable.put(id,new Symbol(value,type));   
+		  } 
+		)*
 		
 		|
 		
@@ -111,39 +164,38 @@ public void Action():
 		{
 		  if(t.kind==NDRYSHORE)
 		  {
-			  if(varList.containsKey(t.image))
+			  if(symbolTable.containsKey(t.image))
 			  {
-			    System.out.print(varList.get(t.image));
+			    System.out.print(symbolTable.getValue(t.image));
 			  }
 			  else
 			  {
-			    var=t.image;
-			    varList.put(var,"null");
-			    System.out.print(varList.get(t.image));
-			    
+			    id=t.image;
+			    symbolTable.put(id,new Symbol("null","String"));
+			    System.out.print(symbolTable.getValue(t.image)); 
 			  }
 		  }
 		  else
 		  {
 		        value=t.image;
 		    	value=value.replace("'","");
-		    	System.out.print(value);		  }
+		    	System.out.print(value);
+		  }
 		}
 		(
 		  < COMMA>  (t= < NDRYSHORE> | t=< FJALI>)
 			{
 			  if(t.kind==NDRYSHORE)
 			  {
-				  if(varList.containsKey(t.image))
+				  if(symbolTable.containsKey(t.image))
 				  {
-				    System.out.print(varList.get(t.image));
+				    System.out.print(symbolTable.getValue(t.image));
 				  }
 				  else
 				  {
-				    var=t.image;
-				    varList.put(var,"null");
-				    System.out.print(varList.get(t.image));
-				    
+				    id=t.image;
+				    symbolTable.put(id,new Symbol("null","String"));
+				    System.out.print(symbolTable.getValue(t.image));
 				  }
 			  }
 			  else
@@ -152,29 +204,32 @@ public void Action():
 			    	value=value.replace("'","");
 			    	System.out.print(value);
 			  }
-			}		)*
+			}
+		)*
 		{
-		  System.out.println();		}
+		  System.out.println();
+		}
 		
 		|
 		
 		t= < NDRYSHORE> < EQUAL>   (v= < FJALI> | v=<NUMBER >)
 		{
 		  
-	      String ndryshore=t.image;
-		  String vlera=v.image;
+	      id=t.image;
+		  value=v.image;
 		  
-		  if(isNumeric(vlera))
+		  if(isNumeric(value))
 		  {
-		    typeList.put(ndryshore,"Number");
+		    type="Number";
 		  }
 		  else
 		  {
-		    typeList.put(ndryshore,"String");
+		    type="String";
 		  }
 		  
-	      vlera=vlera.replace("'","");
-	      varList.put(ndryshore,vlera);		}
+	      value=value.replace("'","");
+	      symbolTable.put(id,new Symbol(value,type));
+		}
        
 	 
 	)*
