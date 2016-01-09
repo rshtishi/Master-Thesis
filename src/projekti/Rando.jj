@@ -212,23 +212,41 @@ public void Action():
 		
 		|
 		
-		t= < NDRYSHORE> < EQUAL>   (v= < FJALI> | v=<NUMBER >)
+		t= < NDRYSHORE> < EQUAL>   (v= < FJALI> | v=<NUMBER > | v=< NDRYSHORE>)
 		{
 		  
 	      id=t.image;
 		  value=v.image;
-		  
-		  if(isNumeric(value))
-		  {
-		    type="Number";
-		  }
-		  else
-		  {
-		    type="String";
-		  }
-		  
-	      value=value.replace("'","");
-	      symbolTable.put(id,new Symbol(value,type));
+
+			if(v.kind==NDRYSHORE)
+			{
+			  	boolean flag=symbolTable.containsKey(v.image);
+				if(flag)
+				{
+					symbolTable.put(t.image,new Symbol(symbolTable.getValue(v.image),symbolTable.getType(v.image)));
+				
+				}
+				else
+				{
+					symbolTable.put(id,new Symbol("null","String"));
+				}
+			}
+		  	else
+		  	{
+				  if(isNumeric(value))
+				  {
+				    type="Number";
+				  }
+				  else
+				  {
+				    type="String";
+				  }
+				  
+			      value=value.replace("'","");
+			      symbolTable.put(id,new Symbol(value,type));
+		  	}
+
+	      
 		}
        
 	 
