@@ -160,8 +160,9 @@ public void Action():
 		
 		|
 		
-		< SHKRUAJ>  (t= < NDRYSHORE> | t=< FJALI>)
+		< SHKRUAJ>  (t= < NDRYSHORE> | t=< FJALI> | t=< NUMBER >)
 		{
+		 
 		  if(t.kind==NDRYSHORE)
 		  {
 			  if(symbolTable.containsKey(t.image))
@@ -175,15 +176,21 @@ public void Action():
 			    System.out.print(symbolTable.getValue(t.image)); 
 			  }
 		  }
-		  else
+		  else if(t.kind==FJALI)
 		  {
 		        value=t.image;
 		    	value=value.replace("'","");
 		    	System.out.print(value);
 		  }
+		  else
+		  {
+			    value=t.image;
+			    int num=Integer.parseInt(value);
+			    System.out.print(num);
+		  }
 		}
 		(
-		  < COMMA>  (t= < NDRYSHORE> | t=< FJALI>)
+		  < COMMA>  (t= < NDRYSHORE> | t=< FJALI> | t=< NUMBER>)
 			{
 			  if(t.kind==NDRYSHORE)
 			  {
@@ -198,11 +205,17 @@ public void Action():
 				    System.out.print(symbolTable.getValue(t.image));
 				  }
 			  }
-			  else
+			  else if(t.kind==FJALI)
 			  {
 			        value=t.image;
 			    	value=value.replace("'","");
 			    	System.out.print(value);
+			  }
+			  else
+			  {
+			        value=t.image;
+			        int num=Integer.parseInt(value);
+			    	System.out.print(num);
 			  }
 			}
 		)*
