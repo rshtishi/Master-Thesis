@@ -69,6 +69,8 @@ public class Rando
 
 }
 
+
+
 PARSER_END(Rando)
 
 
@@ -91,6 +93,7 @@ TOKEN:{ < FILLIM: "Fillim">}
 TOKEN:{ < FUND: "Fund">}
 TOKEN:{ < LEXO: "Lexo">}
 TOKEN:{ < SHKRUAJ: "Shkruaj">}
+TOKEN:{ < RSHKRUAJ: "RShkruaj">}
 TOKEN:{< NDRYSHORE:( ((["a"-"z"])+ | (["A"-"Z"])+ ) ("_" | "-" | ["a"-"z"] | ["A"-"Z"] | ["0"-"9"])*)>}
 TOKEN:{< FJALI:( ("'") (["a"-"z"] | ["A"-"Z"] |  "_"  | "-" | "?"  | "#" | "@"| "$" | "!" | "*" | "="| "/" | "*" | " " | ["0"-"9"])*("'"))*>}
 
@@ -118,8 +121,94 @@ void Start() throws NumberFormatException:
   
 }
 
+
+int expression() :
+{
+  int num1;
+  int num2;
+}
+{
+   num1= term()
+  (
+    (
+      < PLUS > num2=term()
+		      {
+		        num1+=num2;
+		      }
+      |
+      < MINUS > num2=term()
+		      {
+		        num1-=num2;
+		      }
+    )
+    
+  )*
+  {
+    return num1;
+  }
+}
+
+
+int term() :
+{
+  int num1;
+  int num2;
+}
+{
+  num1=unary()
+  (
+    (
+       < TIMES > num2= unary()
+	       {
+	         num1*=num2;
+	       }
+     |
+       < DIVIDE > num2=unary()
+	       {
+	         num1/=num2;
+		   }
+    )
+   
+  )*
+  {
+    return num1;
+  }
+}
+
+int unary() :
+{
+  int num1;
+}
+{
+    < MINUS > num1=element()
+	    {
+	      return -num1;
+	    }
+   |
+     num1=element()
+	     {
+	       return num1;
+	     }
+}
+
+int element() :
+{Token t; int num1;}
+{
+ 	 t=< NUMBER >
+ 	 	{
+ 	 	  return Integer.parseInt(t.image);
+ 	 	}
+	|
+  	 < OPEN_PAR > num1= expression()
+	  	 {
+	  	   return num1;
+	  	 }
+  	 < CLOSE_PAR >
+}
+
+
 public void Action():
-{Token t,v;}
+{Token t,v; int r;}
 {
 		(
 	  	< LEXO > t=< NDRYSHORE> 
@@ -160,37 +249,16 @@ public void Action():
 		
 		|
 		
-		< SHKRUAJ>  (t= < NDRYSHORE> | t=< FJALI> | t=< NUMBER >)
-		{
-		 
-		  if(t.kind==NDRYSHORE)
-		  {
-			  if(symbolTable.containsKey(t.image))
-			  {
-			    System.out.print(symbolTable.getValue(t.image));
-			  }
-			  else
-			  {
-			    id=t.image;
-			    symbolTable.put(id,new Symbol("null","String"));
-			    System.out.print(symbolTable.getValue(t.image)); 
-			  }
-		  }
-		  else if(t.kind==FJALI)
-		  {
-		        value=t.image;
-		    	value=value.replace("'","");
-		    	System.out.print(value);
-		  }
-		  else
-		  {
-			    value=t.image;
-			    int num=Integer.parseInt(value);
-			    System.out.print(num);
-		  }
-		}
+		< SHKRUAJ>  (t= < NDRYSHORE> | t=< FJALI> | t=< EQUAL>   )  r=expression()
+
+
+		   {
+		     System.out.println(r);
+		   }
+		
+
 		(
-		  < COMMA>  (t= < NDRYSHORE> | t=< FJALI> | t=< NUMBER>)
+		  < COMMA>  (t= < NDRYSHORE> | t=< FJALI> | t=< NUMBER> )
 			{
 			  if(t.kind==NDRYSHORE)
 			  {
@@ -213,15 +281,82 @@ public void Action():
 			  }
 			  else
 			  {
+			        
 			        value=t.image;
 			        int num=Integer.parseInt(value);
 			    	System.out.print(num);
+			    	
 			  }
 			}
 		)*
 		{
 		  System.out.println();
 		}
+        | 
+		< RSHKRUAJ>  (t= < NDRYSHORE> | t=< FJALI> | t=< NUMBER >)
+
+		   {
+			  if(t.kind==NDRYSHORE)
+			  {
+				  if(symbolTable.containsKey(t.image))
+				  {
+				    System.out.print(symbolTable.getValue(t.image));
+				  }
+				  else
+				  {
+				    id=t.image;
+				    symbolTable.put(id,new Symbol("null","String"));
+				    System.out.println(symbolTable.getValue(t.image));
+				  }
+			  }
+			  else if(t.kind==FJALI)
+			  {
+			        value=t.image;
+			    	value=value.replace("'","");
+			    	System.out.println(value);
+			  }
+			  else
+			  {
+			        
+			        value=t.image;
+			        int num=Integer.parseInt(value);
+			    	System.out.println(num);
+			    	
+			  }
+			}
+
+				(
+				  < COMMA>  (t= < NDRYSHORE> | t=< FJALI> | t=< NUMBER> )
+					{
+					  if(t.kind==NDRYSHORE)
+					  {
+						  if(symbolTable.containsKey(t.image))
+						  {
+						    System.out.print(symbolTable.getValue(t.image));
+						  }
+						  else
+						  {
+						    id=t.image;
+						    symbolTable.put(id,new Symbol("null","String"));
+						    System.out.println(symbolTable.getValue(t.image));
+						  }
+					  }
+					  else if(t.kind==FJALI)
+					  {
+					        value=t.image;
+					    	value=value.replace("'","");
+					    	System.out.println(value);
+					  }
+					  else
+					  {
+					        
+					        value=t.image;
+					        int num=Integer.parseInt(value);
+					    	System.out.println(num);
+					    	
+					  }
+					}
+				)*
 		
 		|
 		
@@ -265,6 +400,8 @@ public void Action():
 	 
 	)*
 }
+
+
 
 
 
