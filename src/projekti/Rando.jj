@@ -78,6 +78,7 @@ PARSER_END(Rando)
 SKIP :
 { " " | "\t" | "\n" | "\r" | "\r\n" }
 
+TOKEN:{< EVAL:"#">}
 TOKEN:{< PLUS:"+">}
 TOKEN:{< MINUS:"-">}
 TOKEN:{< TIMES:"*">}
@@ -194,6 +195,19 @@ int unary() :
 int element() :
 {Token t; int num1;}
 {
+    t=<NDRYSHORE >
+     {
+       	if(symbolTable.containsKey(t.image))
+		{
+		      String val=symbolTable.getValue(t.image);
+		      return Integer.parseInt(val);
+		}
+		else
+		{
+		      return 0;
+		}
+     }
+   | 
  	 t=< NUMBER >
  	 	{
  	 	  return Integer.parseInt(t.image);
@@ -208,7 +222,7 @@ int element() :
 
 
 public void Action():
-{Token t,v; int r;}
+{Token t=null,v=null; int r=0;}
 {
 		(
 	  	< LEXO > t=< NDRYSHORE> 
@@ -249,54 +263,16 @@ public void Action():
 		
 		|
 		
-		< SHKRUAJ>  (t= < NDRYSHORE> | t=< FJALI> | t=< EQUAL>   )  r=expression()
-
+	   < SHKRUAJ>  ( t=< FJALI> | t=< NDRYSHORE> | t=< NUMBER> | t=< EVAL > r=expression()  )  
 
 		   {
-		     System.out.println(r);
-		   }
-		
-
-		(
-		  < COMMA>  (t= < NDRYSHORE> | t=< FJALI> | t=< NUMBER> )
-			{
-			  if(t.kind==NDRYSHORE)
-			  {
-				  if(symbolTable.containsKey(t.image))
-				  {
-				    System.out.print(symbolTable.getValue(t.image));
-				  }
-				  else
-				  {
-				    id=t.image;
-				    symbolTable.put(id,new Symbol("null","String"));
-				    System.out.print(symbolTable.getValue(t.image));
-				  }
-			  }
-			  else if(t.kind==FJALI)
+		      if(t.kind==FJALI)
 			  {
 			        value=t.image;
 			    	value=value.replace("'","");
 			    	System.out.print(value);
 			  }
-			  else
-			  {
-			        
-			        value=t.image;
-			        int num=Integer.parseInt(value);
-			    	System.out.print(num);
-			    	
-			  }
-			}
-		)*
-		{
-		  System.out.println();
-		}
-        | 
-		< RSHKRUAJ>  (t= < NDRYSHORE> | t=< FJALI> | t=< NUMBER >)
-
-		   {
-			  if(t.kind==NDRYSHORE)
+			  else if(t.kind==NDRYSHORE)
 			  {
 				  if(symbolTable.containsKey(t.image))
 				  {
@@ -304,31 +280,102 @@ public void Action():
 				  }
 				  else
 				  {
-				    id=t.image;
-				    symbolTable.put(id,new Symbol("null","String"));
-				    System.out.println(symbolTable.getValue(t.image));
+				    System.out.print("null");
 				  }
 			  }
-			  else if(t.kind==FJALI)
+			  else if(t.kind==NUMBER)
+			  {
+			    	value=t.image;
+			        int num=Integer.parseInt(value);
+			    	System.out.print(num);
+			  }
+			  else
+			  {     
+			       System.out.print(r); 	
+			  }
+		   }
+
+
+		
+
+		(
+		  < COMMA>  ( t=< FJALI> | t=< NDRYSHORE> | t=< NUMBER> | t=< EVAL > r=expression()  ) 
+		   {
+		      if(t.kind==FJALI)
+			  {
+			        value=t.image;
+			    	value=value.replace("'","");
+			    	System.out.print(value);
+			  }
+			  else if(t.kind==NDRYSHORE)
+			  {
+				  if(symbolTable.containsKey(t.image))
+				  {
+				    System.out.print(symbolTable.getValue(t.image));
+				  }
+				  else
+				  {
+				    System.out.print("null");
+				  }
+			  }
+			  else if(t.kind==NUMBER)
+			  {
+			    	value=t.image;
+			        int num=Integer.parseInt(value);
+			    	System.out.print(num);
+			  }
+			  else if(t.kind==EVAL)
+			  {     
+			       System.out.print(r); 	
+			  }
+		   }
+		)*
+		
+        | 
+		< RSHKRUAJ>  ( t=< FJALI> | t=< NDRYSHORE> | t=< NUMBER> | t=< EVAL > r=expression()  ) 
+
+		   {
+		      System.out.println();
+		      
+		      if(t.kind==FJALI)
 			  {
 			        value=t.image;
 			    	value=value.replace("'","");
 			    	System.out.println(value);
 			  }
-			  else
+			  else if(t.kind==NDRYSHORE)
 			  {
-			        
-			        value=t.image;
+				  if(symbolTable.containsKey(t.image))
+				  {
+				    System.out.println(symbolTable.getValue(t.image));
+				  }
+				  else
+				  {
+				    System.out.println("null");
+				  }
+			  }
+			  else if(t.kind==NUMBER)
+			  {
+			    	value=t.image;
 			        int num=Integer.parseInt(value);
 			    	System.out.println(num);
-			    	
 			  }
-			}
+			  else
+			  {     
+			       System.out.println(r); 	
+			  }
+		   }
 
 				(
-				  < COMMA>  (t= < NDRYSHORE> | t=< FJALI> | t=< NUMBER> )
-					{
-					  if(t.kind==NDRYSHORE)
+				  < COMMA>  (t= < NDRYSHORE> | t=< FJALI> | t=< NUMBER> | t=< EVAL > r=expression()  )
+				   {
+				      if(t.kind==FJALI)
+					  {
+					        value=t.image;
+					    	value=value.replace("'","");
+					    	System.out.println(value);
+					  }
+					  else if(t.kind==NDRYSHORE)
 					  {
 						  if(symbolTable.containsKey(t.image))
 						  {
@@ -336,31 +383,25 @@ public void Action():
 						  }
 						  else
 						  {
-						    id=t.image;
-						    symbolTable.put(id,new Symbol("null","String"));
-						    System.out.println(symbolTable.getValue(t.image));
+						    System.out.println("null");
 						  }
 					  }
-					  else if(t.kind==FJALI)
+					  else if(t.kind==NUMBER)
 					  {
-					        value=t.image;
-					    	value=value.replace("'","");
-					    	System.out.println(value);
-					  }
-					  else
-					  {
-					        
-					        value=t.image;
+					    	value=t.image;
 					        int num=Integer.parseInt(value);
 					    	System.out.println(num);
-					    	
 					  }
-					}
+					  else if(t.kind==EVAL)
+					  {     
+					       System.out.println(r); 	
+					  }
+				   }
 				)*
 		
 		|
 		
-		t= < NDRYSHORE> < EQUAL>   (v= < FJALI> | v=<NUMBER > | v=< NDRYSHORE>)
+		t= < NDRYSHORE> < EQUAL>   (v= < FJALI> | v=<NUMBER > | v=< NDRYSHORE> | v=< EVAL> r=expression() )
 		{
 		  
 	      id=t.image;
@@ -378,6 +419,12 @@ public void Action():
 				{
 					symbolTable.put(id,new Symbol("null","String"));
 				}
+			}
+			else if(v.kind==EVAL)
+			{
+					value=""+r;
+					
+					symbolTable.put(id,new Symbol(value,"Number"));
 			}
 		  	else
 		  	{
