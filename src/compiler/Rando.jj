@@ -8,9 +8,11 @@ options {
 
 PARSER_BEGIN(Rando)
 
-package projekti;
+package compiler;
 import java.io.PrintStream;
 import java.util.*;
+import abstract_syntax_tree.*;
+import symbol_table.*;
 
 
 
@@ -131,91 +133,31 @@ void Start() throws NumberFormatException:
 }
 
 
-boolean rExp():
+Exp expression() :
 {
-  
-  int num1;
-  int num2;
-}
-{
-	num1=rTerm()
-	(
-	  (
-	    < ET> num2=rTerm() {  return (num1==num2);}
-	  |
-	    < NET> num2=rTerm() {  return (num1!=num2);}
-	  |
-	    < GT> num2=rTerm() {  return (num1 > num2);}
-	  |
-	    < LT> num2=rTerm() {  return (num1 < num2);}
-	  |
-	    < GET> num2=rTerm() {  return (num1 >= num2);}
-	  |
-	    < LET> num2=rTerm() {  return (num1 <= num2);}
-	  )
-	)*
-}
-
-int rTerm():
-{
-  Token t;
-  int r;
-}
-{
-   	    t=< NUMBER >
- 	 	{
- 	 	  return Integer.parseInt(t.image);
- 	 	}
- 	| 
- 	 	t=<NDRYSHORE >
- 	 	{
- 	 	        if(symbolTable.containsKey(t.image))
-				{
-				      String val=symbolTable.getValue(t.image);
-				      return Integer.parseInt(val);
-				}
-				else
-				{
-				      return 0;
-				}
- 	 	}
-	|
-	   t=< EVAL> r=expression()
-	   {
-	      return r;
-	   }
-}
-int expression() :
-{
-  int num1;
-  int num2;
+	Exp num1,num2;
 }
 {
    num1= term()
   (
     (
-      < PLUS > num2=term()
-		      {
-		        num1+=num2;
-		      }
+      < PLUS > num2=term()		      {
+		        num1=new PlusExp(num1,num2);		      }
       |
       < MINUS > num2=term()
 		      {
-		        num1-=num2;
-		      }
+		        num1=new MinusExp(num1,num2);		      }
     )
     
   )*
   {
-    return num1;
-  }
-}
+    return num1;  }}
 
 
-int term() :
+Exp term() :
 {
-  int num1;
-  int num2;
+  Exp num1;
+  Exp num2;
 }
 {
   num1=unary()
@@ -223,73 +165,59 @@ int term() :
     (
        < TIMES > num2= unary()
 	       {
-	         num1*=num2;
-	       }
+	         num1=new TimesExp(num1,num2);	       }
      |
        < DIVIDE > num2=unary()
 	       {
-	         num1/=num2;
-		   }
+	         num1=new DivideExp(num1,num2);		   }
      |
     <MOD > num2=unary()
 	       {
-	         num1%=num2;
+	         num1=new ModuleExp(num1,num2);
 		   }
     )
    
   )*
   {
-    return num1;
-  }
+    return num1;  }
 }
 
-int unary() :
+Exp unary() :
 {
-  int num1;
+  Exp num1;
 }
 {
-    < MINUS > num1=element()
-	    {
-	      return -num1;
-	    }
+    < MINUS > num1=element()	    {
+	      num1= new NegativeExp(num1);
+	      return num1;	    }
    |
      num1=element()
 	     {
-	       return num1;
-	     }
+	       num1=new PositiveExp(num1);
+	       return num1;	     }
 }
 
-int element() :
-{Token t; int num1;}
+Exp element() :
+{Token t; Exp num1;}
 {
     t=<NDRYSHORE >
      {
-       	if(symbolTable.containsKey(t.image))
-		{
-		      String val=symbolTable.getValue(t.image);
-		      return Integer.parseInt(val);
-		}
-		else
-		{
-		      return 0;
-		}
+    	return new Identifier(t.image,symbolTable);
      }
    | 
  	 t=< NUMBER >
  	 	{
- 	 	  return Integer.parseInt(t.image);
+ 	 	  return new IntegerLiteral(t.image);
  	 	}
 	|
-  	 < OPEN_PAR > num1= expression()
-	  	 {
-	  	   return num1;
-	  	 }
+  	 < OPEN_PAR > num1= expression()	  	 {
+	  	   return num1;	  	 }
   	 < CLOSE_PAR >
 }
 
 
 public void Action():
-{Token t=null,v=null; int r=0; boolean b=false;}
+{Token t=null,v=null; Exp r; boolean b=false;}
 {
 		(
 	  	< LEXO > t=< NDRYSHORE> 
@@ -333,13 +261,13 @@ public void Action():
 		   < SHKRUAJ>  (   r=expression()  )  
 	
 			   {
-				 System.out.print(r); 
+				 System.out.print(r.eval()); 
 			   }
 	
 			(
 			  < COMMA>  (  r=expression()  ) 
 			   {
-				     System.out.print(r); 	
+				     System.out.print(r.eval()); 	
 			   }
 			)*
 		
@@ -349,14 +277,14 @@ public void Action():
 		   {
 		      System.out.println();
 		      
-		      System.out.println(r); 	
+		      System.out.println(r.eval()); 	
 			  
 		   }
 
 				(
 				  < COMMA>  ( r=expression()  )
 				   {
-					    System.out.println(r); 	
+					    System.out.println(r.eval()); 	
 				   }
 				)*
 		
@@ -364,8 +292,7 @@ public void Action():
 		
 		t= < NDRYSHORE> < EQUAL>   ( r=expression() )
 		{
-		    id=t.image;
-			value=""+r;
+		    id=t.image;			value=""+r.eval();
 					
 			symbolTable.put(id,new Symbol(value,"Number"));
 		}

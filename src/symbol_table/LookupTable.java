@@ -1,4 +1,5 @@
-package projekti;
+package symbol_table;
+
 
 public interface LookupTable 
 {

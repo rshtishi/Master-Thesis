@@ -1,4 +1,6 @@
-package projekti;
+package symbol_table;
+
+
 
 import java.util.HashMap;
 import java.util.Map;
@@ -40,3 +42,4 @@ public class LookupSymbolTable implements LookupTable
       
 
 }
+
