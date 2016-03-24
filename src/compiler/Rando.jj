@@ -11,17 +11,24 @@ PARSER_BEGIN(Rando)
 package compiler;
 import java.io.PrintStream;
 import java.util.*;
-import abstract_syntax_tree.*;
 import symbol_table.*;
+import syntax_tree.*;
+import interpreter.*;
 
 
 
 public class Rando
 {
+  
   //Deklarimi i tabeles se simboleve
   public static LookupTable symbolTable=new LookupSymbolTable();
+
+  
   //Deklari i objekti te cilet do jape mundesi perdoruesit te fuse te dhena
   public static  Scanner jin=new Scanner(System.in);
+
+  //Deklarimi i interpretuesit
+  public static Interpreter interpreter=new Interpreter();
 
   //Metoda qe do te kontrolloje per 
   public static boolean isNumeric(String str)
@@ -29,11 +36,12 @@ public class Rando
   return str.matches("-?\\d+(\\.\\d+)?");  //match a number with optional '-' and decimal.
   }
 
+
   //Metoda Kryesore qe therret te gjithe aplikacionin
   public static void main(String args[]) throws ParseException
   {
      Rando parser = new Rando(System.in);
-     int x=0;
+	     int x=0;
      while (x==0)
     {
       System.out.println("Reading from standard input...");
@@ -67,7 +75,7 @@ public class Rando
      //parser.Start();
   }
   
-  double previousValue=0.0;
+
 
 }
 
@@ -78,35 +86,75 @@ PARSER_END(Rando)
 
 
 SKIP :
-{ " " | "\t" | "\n" | "\r" | "\r\n" }
+{
+    " "
+  | "\t"
+  | "\n"
+  | "\r"
+  | "\r\n"
+  | <"\"" (~["\n","\r"])* ("\n"|"\r"|"\r\n")>
 
-TOKEN:{< EVAL:"#">}
-TOKEN:{< REVAL:"?">}
-TOKEN:{< PLUS:"+">}
-TOKEN:{< MINUS:"-">}
-TOKEN:{< TIMES:"*">}
-TOKEN:{< DIVIDE:"/">}
-TOKEN:{< MOD:"%">}
-TOKEN:{< EQUAL:"=">}
-TOKEN:{< ET:"==">}
-TOKEN:{< NET:"!=">}
-TOKEN:{< GT:">">}
-TOKEN:{< LT:"<">}
-TOKEN:{< GET:">=">}
-TOKEN:{< LET:"<=">}
-TOKEN:{< COMMA:",">}
-TOKEN:{<NUMBER: < DIGITS >| < DIGITS >"."< DIGITS >  | < DIGITS >"." | "."< DIGITS >>}
-TOKEN:{< #DIGITS:(["0"-"9"])+>}
-TOKEN:{< OPEN_PAR:"(">}
-TOKEN:{< CLOSE_PAR:")">}
-TOKEN:{< PREVIOUS:"$">}
-TOKEN:{ < FILLIM: "Fillim">}
-TOKEN:{ < FUND: "Fund">}
-TOKEN:{ < LEXO: "Lexo">}
-TOKEN:{ < SHKRUAJ: "Shkruaj">}
-TOKEN:{ < RSHKRUAJ: "RShkruaj">}
-TOKEN:{< NDRYSHORE:( ((["a"-"z"])+ | (["A"-"Z"])+ ) ("_" | "-" | ["a"-"z"] | ["A"-"Z"] | ["0"-"9"])*)>}
-TOKEN:{< FJALI:( ("'") (["a"-"z"] | ["A"-"Z"] |  "_"  | "-" | "?"  | "#" | "@"| "$" | "!" | "*" | "="| "/" | "*" | " " | ["0"-"9"])*("'"))*>}
+}
+
+TOKEN :
+/*
+KEYWORDS
+*/
+{
+      < INCLUDE: "perfshi" >
+|     < IF: "Nqs" >
+|     < WHILE: "Gjersa" >
+|     < DO: "do" >
+|     < STOP: "stop" >
+|     < DEF : "def" >
+|     < BEGIN : "Fillim" >
+|     < END : "Fund" >
+}
+
+TOKEN :
+/* SYMBOLS */
+{
+      < DOT: "." >
+|     < COLON: ":" >
+|     < EQ: "==" >
+|     < GT: ">"  >
+|     < LT: "<"  >
+|     < GE: ">=" >
+|     < LE: "<=" >
+|     < NE: "!=" >
+|     < PLUS: "+">
+|     < MINUS: "-" >
+|     < MUL: "*" >
+|     < DIV: "/" >
+|     < MOD: "%" >
+|     < ASSIGN: "=" >
+|     < OPEN_PAR: "(" >
+|     < CLOSE_PAR: ")" >
+}
+
+TOKEN :
+/* LITERALS */
+{
+  < INTEGER_LITERAL:  ["1"-"9"] ( ["0"-"9"])* | "0"   >
+
+ 
+  
+  | <STRING_LITERAL: ( ("'") (["a"-"z"] | ["A"-"Z"] |  "_"  | "-" | "?"  | "#" | "@"| "$" | "!" | "*" | "="| "/" | "*" | " " | ["0"-"9"])*("'"))*> 
+}
+
+TOKEN :
+/* IDENTIFIERS */
+{
+  < IDENTIFIER: <LETTER> (<LETTER>|<DIGIT>)* >
+|  < #LETTER: ["_","a"-"z","A"-"Z"] >
+|  < #DIGIT: ["0"-"9"] >
+}
+
+SPECIAL_TOKEN :
+{
+  	<SINGLE_LINE_COMMENT: "//" (~["\n","\r"])* ("\n"|"\r"|"\r\n")>
+  | <MULTI_LINE_COMMENT: "/*" (~["*"])* "*" ("*" | (~["*","/"] (~["*"])* "*"))* "/">
+}
 
 
 /** Looping*/
@@ -123,186 +171,90 @@ int one_line() :
   }
 }
 
-void Start() throws NumberFormatException:
-{Token t;}
+void Start():
 {
-  < FILLIM>
-    Action()
-  < FUND >
-  
+  MathExp r;
+  int val;
+  Token t;
+}
+{
+	(	   Include()
+	 )*
+	 < BEGIN>
+	 (
+
+	   r=mathExp()
+	   {
+	     System.out.println(r.eval());	   } 	 )*
+	 < END>
 }
 
 
-Exp expression() :
+void Include():
+{}
 {
-	Exp num1,num2;
+ 	   < INCLUDE >
+      (
+        < IDENTIFIER >
+      )+
+ 
+}
+
+
+
+MathExp mathExp():
+{
+    MathExp num1;
+    MathExp num2;
+    int num;
 }
 {
-   num1= term()
-  (
+    num1=term()
     (
-      < PLUS > num2=term()		      {
-		        num1=new PlusExp(num1,num2);		      }
-      |
-      < MINUS > num2=term()
-		      {
-		        num1=new MinusExp(num1,num2);		      }
-    )
+        < PLUS>  num2=mathExp()    { num1= new PlusExp(num1,num2);}
+    |   < MINUS> num2=mathExp()    { num1=new MinusExp(num1,num2); }
+    )*
     
-  )*
-  {
-    return num1;  }}
+   { return num1; }
+}
 
 
-Exp term() :
+MathExp term():
 {
-  Exp num1;
-  Exp num2;
+	MathExp num1;
+	MathExp num2;
 }
 {
-  num1=unary()
-  (
+    num1=unary()
     (
-       < TIMES > num2= unary()
-	       {
-	         num1=new TimesExp(num1,num2);	       }
-     |
-       < DIVIDE > num2=unary()
-	       {
-	         num1=new DivideExp(num1,num2);		   }
-     |
-    <MOD > num2=unary()
-	       {
-	         num1=new ModuleExp(num1,num2);
-		   }
-    )
-   
-  )*
-  {
-    return num1;  }
+        < MUL>    num2=term()    { num1=new MulExp(num1,num2); }
+    |   < DIV>    num2=term()    { num1=new DivExp(num1,num2); }
+    |   < MOD>    num2=term()    { num1=new ModExp(num1,num2); }
+    )*
+   { return num1; }
 }
 
-Exp unary() :
+MathExp unary():
 {
-  Exp num1;
+    MathExp num1;
 }
 {
-    < MINUS > num1=element()	    {
-	      num1= new NegativeExp(num1);
-	      return num1;	    }
-   |
-     num1=element()
-	     {
-	       num1=new PositiveExp(num1);
-	       return num1;	     }
+    < MINUS> num1=primary()         { return new NegativeExp(num1);  }
+|            num1=primary()         { return  new PositiveExp(num1); }
 }
 
-Exp element() :
-{Token t; Exp num1;}
+
+MathExp primary():
 {
-    t=<NDRYSHORE >
-     {
-    	return new Identifier(t.image,symbolTable);
-     }
-   | 
- 	 t=< NUMBER >
- 	 	{
- 	 	  return new IntegerLiteral(t.image);
- 	 	}
-	|
-  	 < OPEN_PAR > num1= expression()	  	 {
-	  	   return num1;	  	 }
-  	 < CLOSE_PAR >
+    Token t;
+    MathExp num1;
 }
-
-
-public void Action():
-{Token t=null,v=null; Exp r; boolean b=false;}
 {
-		(
-	  	< LEXO > t=< NDRYSHORE> 
-		{
-		  
-		  String id=t.image;
-		  String value=jin.next();
-		  String type;
-		  if(isNumeric(value))
-		  {
-		    type="Number";
-		  }
-		  else
-		  {
-		    type="String";
-		  }
-		  value=value.replace("'","");
-		  symbolTable.put(id,new Symbol(value,type));   
-		}
-		(
-		  < COMMA> t=< NDRYSHORE>
-		  {
-		     
-			  id=t.image;
-			  value=jin.next();
-			  if(isNumeric(value))
-			  {
-			    type="Number";
-			  }
-			  else
-			  {
-			    type="String";
-			  }
-			  value=value.replace("'","");
-			  symbolTable.put(id,new Symbol(value,type));   
-		  } 
-		)*
-		
-		|
-		
-		   < SHKRUAJ>  (   r=expression()  )  
-	
-			   {
-				 System.out.print(r.eval()); 
-			   }
-	
-			(
-			  < COMMA>  (  r=expression()  ) 
-			   {
-				     System.out.print(r.eval()); 	
-			   }
-			)*
-		
-        | 
-		< RSHKRUAJ>  (  r=expression()  ) 
-
-		   {
-		      System.out.println();
-		      
-		      System.out.println(r.eval()); 	
-			  
-		   }
-
-				(
-				  < COMMA>  ( r=expression()  )
-				   {
-					    System.out.println(r.eval()); 	
-				   }
-				)*
-		
-		|
-		
-		t= < NDRYSHORE> < EQUAL>   ( r=expression() )
-		{
-		    id=t.image;			value=""+r.eval();
-					
-			symbolTable.put(id,new Symbol(value,"Number"));
-		}
-       
-	 
-	)*
+    t=<INTEGER_LITERAL>                                   { return new IntegerLiteral(t.image); }
+|   t=< IDENTIFIER >														  {
+														         return new Identifier(t.image,symbolTable);														  }
+|   t=< STRING_LITERAL>									  {      return new StringLiteral(t.image);}  
+|   < OPEN_PAR >  num1=mathExp() < CLOSE_PAR >            { return num1; }
 }
-
-
-
-
 
 
