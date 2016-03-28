@@ -2,33 +2,33 @@ package syntax_tree;
 
 import interpreter.*;
 
-public class PlusExp extends MathExp
+public class PlusExp extends Exp
 {
-	private MathExp e1;
-	private MathExp e2;
+	private Exp e1;
+	private Exp e2;
 	
-	public PlusExp(MathExp e1,MathExp e2)
+	public PlusExp(Exp e1,Exp e2)
 	{
 		this.e1=e1;
 		this.e2=e2;
 	}
 
-	public MathExp getE1() 
+	public Exp getE1() 
 	{
 		return e1;
 	}
 
-	public void setE1(MathExp e1) 
+	public void setE1(Exp e1) 
 	{
 		this.e1 = e1;
 	}
 
-	public MathExp getE2() 
+	public Exp getE2() 
 	{
 		return e2;
 	}
 
-	public void setE2(MathExp e2) 
+	public void setE2(Exp e2) 
 	{
 		this.e2 = e2;
 	}

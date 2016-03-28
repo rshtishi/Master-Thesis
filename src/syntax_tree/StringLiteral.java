@@ -1,7 +1,7 @@
 package syntax_tree;
 import interpreter.*;
 
-public class StringLiteral extends MathExp 
+public class StringLiteral extends Exp 
 {
 	private String string;
 	

@@ -109,6 +109,12 @@ KEYWORDS
 |     < DEF : "def" >
 |     < BEGIN : "Fillim" >
 |     < END : "Fund" >
+|     < OR : "ose" >
+|     < AND : "dhe" >
+|     < NOT : "!" >
+|     < TRUE : "true" >
+|     < FALSE : "false" >
+
 }
 
 TOKEN :
@@ -130,6 +136,8 @@ TOKEN :
 |     < ASSIGN: "=" >
 |     < OPEN_PAR: "(" >
 |     < CLOSE_PAR: ")" >
+|     < OPEN_BRACKET:"<[" >
+|     < CLOSE_BRACKET:"]" >
 }
 
 TOKEN :
@@ -173,19 +181,19 @@ int one_line() :
 
 void Start():
 {
-  MathExp r;
+  Exp r;
   int val;
   Token t;
+  boolean b;
 }
 {
 	(	   Include()
 	 )*
 	 < BEGIN>
-	 (
 
-	   r=mathExp()
-	   {
-	     System.out.println(r.eval());	   } 	 )*
+		b=logicExp()
+				{
+		  System.out.println(b);		}	
 	 < END>
 }
 
@@ -201,11 +209,172 @@ void Include():
 }
 
 
+/*
+------------------------------
+Logic Exp
+------------------------------
+*/
 
-MathExp mathExp():
+public boolean logicExp():
 {
-    MathExp num1;
-    MathExp num2;
+  boolean flag1;
+  boolean flag2;}
+{
+  flag1=andExp()
+  (
+    < OR>
+    flag2=logicExp()
+    {
+      flag1=flag1 || flag2;    }  )*
+  {
+    return flag1;  }}
+
+
+public boolean andExp():
+{
+  boolean flag1;
+  boolean flag2;}
+{	flag1=notExp()
+	(
+	  < AND >
+	  flag2=andExp()	  {
+	    flag1=flag1 && flag2;	  }	)*
+	{
+	  return flag1;	}
+}
+
+
+public boolean notExp():
+{
+  boolean flag;}
+{
+  (    
+	  < NOT> flag=equalExp()	  {
+	    flag=!flag;	  }
+	  
+	| flag=equalExp()
+
+
+  )
+  
+	{
+	  return flag;	}
+}
+
+
+public boolean equalExp():
+{
+  boolean flag1;
+  boolean flag2;}
+{
+  flag1=literal()
+  (
+    < EQ> flag2=equalExp()
+    {
+      flag1=flag1==flag2;    }
+  |
+  	< NE > flag2=equalExp()
+  	{
+  	  flag1=flag1!=flag2;  	}  )*
+  
+  {
+    return flag1;  }
+  }
+
+
+
+public boolean literal():
+{	boolean flag;
+	Token t;
+	
+}
+{
+	  (	    
+		  t=< TRUE>			  {
+			    flag= true;			  }
+		  
+		| t=< FALSE>
+			  {
+				flag=false;			  }
+		  
+	
+		|  flag=Relation()
+
+		//| < OPEN_PAR > flag=logicExp() < CLOSE_PAR >				
+	 )
+	 
+	 {
+	   return flag;	 }
+
+	
+}
+
+
+
+
+public boolean Relation():
+{
+    Exp e1,e2;
+	int num1;
+	int num2;
+	boolean flag=false;}
+{
+	
+	  	    
+		  e1=mathExp()		  {
+		    num1=e1.eval();		  }
+		  (
+			    < GT>  e2=mathExp()
+			    {
+			      num2=e2.eval();
+			      flag=num1 > num2;			    }
+			
+			  | < GE>  e2=mathExp()
+			  {
+			      num2=e2.eval();	    
+			      flag=num1 >= num2;
+			  }
+		
+			  |  <LT>  e2=mathExp()
+			  {
+			      num2=e2.eval();	   				  flag=num1 < num2;
+			  }
+		
+			  |  <LE>  e2=mathExp()
+			  {
+			     num2=e2.eval();	    
+			     flag=num1<=num2;			  }
+			  | 
+			    <EQ>e2=mathExp()
+			    {
+			      num2=e2.eval();
+			      flag=num1==num2;
+			    }
+			  |
+			  	<NE> e2=mathExp()
+			  	{
+			  	  num2=e2.eval();
+			  	  flag=num1!=num2;
+			  	}		  )	
+
+	 {   
+	  return flag;
+	 }
+ }
+
+
+
+/*
+------------------------------
+Math Exp
+------------------------------
+*/
+
+
+Exp mathExp():
+{
+    Exp num1;
+    Exp num2;
     int num;
 }
 {
@@ -219,10 +388,12 @@ MathExp mathExp():
 }
 
 
-MathExp term():
+
+
+Exp term():
 {
-	MathExp num1;
-	MathExp num2;
+	Exp num1;
+	Exp num2;
 }
 {
     num1=unary()
@@ -234,9 +405,11 @@ MathExp term():
    { return num1; }
 }
 
-MathExp unary():
+
+
+Exp unary():
 {
-    MathExp num1;
+    Exp num1;
 }
 {
     < MINUS> num1=primary()         { return new NegativeExp(num1);  }
@@ -244,10 +417,12 @@ MathExp unary():
 }
 
 
-MathExp primary():
+
+
+Exp primary():
 {
     Token t;
-    MathExp num1;
+    Exp num1;
 }
 {
     t=<INTEGER_LITERAL>                                   { return new IntegerLiteral(t.image); }

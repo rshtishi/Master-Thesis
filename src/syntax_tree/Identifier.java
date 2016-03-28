@@ -3,7 +3,7 @@ package syntax_tree;
 import symbol_table.*;
 import interpreter.*;
 
-public class Identifier  extends MathExp
+public class Identifier  extends Exp
 {
 	private String string;
 	private LookupTable table;
