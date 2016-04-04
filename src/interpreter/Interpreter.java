@@ -1,6 +1,6 @@
 package interpreter;
 import symbol_table.*;
-import syntax_tree.*;
+import syntax_tree.math.*;
 
 
 public class Interpreter implements Visitor
@@ -60,10 +60,6 @@ public class Interpreter implements Visitor
 		return Integer.parseInt(e.getString());
 	}
 
-	@Override
-	public int visit(StringLiteral e) 
-	{
-		return 0;
-	}
+
 	
 }

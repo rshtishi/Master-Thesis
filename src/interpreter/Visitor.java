@@ -1,5 +1,5 @@
 package interpreter;
-import syntax_tree.*;
+import syntax_tree.math.*;
 
 public interface Visitor 
 {
@@ -21,5 +21,4 @@ public interface Visitor
 	
 	public int visit(IntegerLiteral e);
 	
-	public int visit(StringLiteral e);
 }

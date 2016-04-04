@@ -12,7 +12,9 @@ package compiler;
 import java.io.PrintStream;
 import java.util.*;
 import symbol_table.*;
-import syntax_tree.*;
+import syntax_tree.math.*;
+import syntax_tree.logic.*;
+import syntax_tree.statement.*;
 import interpreter.*;
 
 
@@ -107,6 +109,7 @@ KEYWORDS
 |     < DO: "do" >
 |     < STOP: "stop" >
 |     < DEF : "def" >
+|     < PRINT : "Shkruaj" >
 |     < BEGIN : "Fillim" >
 |     < END : "Fund" >
 |     < OR : "ose" >
@@ -121,6 +124,7 @@ TOKEN :
 /* SYMBOLS */
 {
       < DOT: "." >
+|     < COMMA: "," >
 |     < COLON: ":" >
 |     < EQ: "==" >
 |     < GT: ">"  >
@@ -143,7 +147,7 @@ TOKEN :
 TOKEN :
 /* LITERALS */
 {
-  < INTEGER_LITERAL:  ["1"-"9"] ( ["0"-"9"])* | "0"   >
+  < INTEGER_LITERAL:  ("-")?["1"-"9"] ( ["0"-"9"])* | "0"   >
 
  
   
@@ -181,19 +185,20 @@ int one_line() :
 
 void Start():
 {
-  Exp r;
+  MathExp r;
   int val;
   Token t;
   boolean b;
+  LogicExp l;
+  Statement s;
 }
 {
 	(	   Include()
 	 )*
 	 < BEGIN>
 
-		b=logicExp()
-				{
-		  System.out.println(b);		}	
+	print()
+
 	 < END>
 }
 
@@ -208,173 +213,299 @@ void Include():
  
 }
 
-
 /*
 ------------------------------
-Logic Exp
+Statements
 ------------------------------
 */
 
-public boolean logicExp():
+void print():
 {
-  boolean flag1;
-  boolean flag2;}
+  LogicExp l;
+  MathExp e;
+  Token t;}
 {
-  flag1=andExp()
+     (       
+  		< PRINT>
+  				(
+	  				  	 t=< STRING_LITERAL>
+	  				  	 {
+	  				  	   System.out.println(t.image);	  				  	 }
+	  			  |
+	  			 
+				  		l=logicExp()
+						{
+						  System.out.println(l.eval());
+						}
+				)*
+	)*}
+
+/*
+------------------------------
+Logic LogicExp
+------------------------------
+*/
+
+
+public LogicExp logicExp():
+{
+	LogicExp l1;
+	LogicExp l2;
+}
+{
+  l1=andExp()
   (
     < OR>
-    flag2=logicExp()
+    l2=logicExp()
     {
-      flag1=flag1 || flag2;    }  )*
+      l1=new OrExp(l1,l2);
+    }
+  )*
   {
-    return flag1;  }}
-
-
-public boolean andExp():
-{
-  boolean flag1;
-  boolean flag2;}
-{	flag1=notExp()
-	(
-	  < AND >
-	  flag2=andExp()	  {
-	    flag1=flag1 && flag2;	  }	)*
-	{
-	  return flag1;	}
+    return l1;
+  }
 }
 
 
-public boolean notExp():
+public LogicExp andExp():
 {
-  boolean flag;}
+	LogicExp l1;
+	LogicExp l2;
+}
 {
-  (    
-	  < NOT> flag=equalExp()	  {
-	    flag=!flag;	  }
+	l1=notExp()
+	(
+	  < AND >
+	  l2=andExp()
+	  {
+	    l1=new AndExp(l1,l2);
+	  }
+	)*
+	{
+	  return l1;
+	}
+}
+
+public LogicExp notExp():
+{
+	LogicExp l1;
+}
+{
+  (
+    
+	  < NOT> l1=equalExp()
+		{
+		   return l1;
+		}
 	  
-	| flag=equalExp()
+	| l1=equalExp()
+		{
+		   return l1;
+		}
 
 
   )
-  
-	{
-	  return flag;	}
-}
+
+}
 
 
-public boolean equalExp():
+public LogicExp equalExp():
 {
-  boolean flag1;
-  boolean flag2;}
+	LogicExp l1;
+	LogicExp l2;
+}
 {
-  flag1=literal()
+  l1=literal()
   (
-    < EQ> flag2=equalExp()
+    < EQ> l2=equalExp()
     {
-      flag1=flag1==flag2;    }
+      l1=new EqualExp(l1,l2);
+    }
   |
-  	< NE > flag2=equalExp()
+  	< NE > l2=equalExp()
   	{
-  	  flag1=flag1!=flag2;  	}  )*
+  	  l1=new InEqualExp(l1,l2);
+  	}
+  )*
   
   {
-    return flag1;  }
-  }
+    return l1;
+  }
+  
+}
 
 
 
-public boolean literal():
-{	boolean flag;
-	Token t;
+public LogicExp literal():
+{
+	LogicExp l1;
 	
 }
 {
-	  (	    
-		  t=< TRUE>			  {
-			    flag= true;			  }
-		  
-		| t=< FALSE>
+	  (
+	    
+		  < TRUE>
 			  {
-				flag=false;			  }
+			    return new TrueLiteral();
+			  }
 		  
-	
-		|  flag=Relation()
+		| < FALSE>
+			  {
+				return new FalseLiteral();
+			  }
+		  
 
-		//| < OPEN_PAR > flag=logicExp() < CLOSE_PAR >				
+
+		| l1= relation()
+			  {
+				return l1;
+			  }
+
+		| < OPEN_PAR > l1=logicExp() < CLOSE_PAR >
+			  {
+			    return l1;
+			  }
+			
+	
 	 )
 	 
-	 {
-	   return flag;	 }
 
-	
-}
+}
 
 
 
 
-public boolean Relation():
+
+public LogicExp relation():
 {
-    Exp e1,e2;
-	int num1;
-	int num2;
-	boolean flag=false;}
-{
+	LogicExp e1;
+	Token t1,t2;
+	String type1;
+	String type2;
 	
-	  	    
-		  e1=mathExp()		  {
-		    num1=e1.eval();		  }
-		  (
-			    < GT>  e2=mathExp()
-			    {
-			      num2=e2.eval();
-			      flag=num1 > num2;			    }
+}
+{    
+		 (		    t1=< INTEGER_LITERAL>{ type1="Number"; }
+		  |
+		  	t1=< STRING_LITERAL> { type1="String"; }   
+		)
+		
+		  (		    	  
+				    < GT>
+				    		(
+					      		 t2=< INTEGER_LITERAL>
+							    {
+							      	 type2="Number";
+							         e1=new RelGTExp(t1.image,type1,t2.image,type2);
+							    }
+							  |
+							  	t2=< STRING_LITERAL>
+							    {
+							      	 type2="String";
+							         e1=new RelGTExp(t1.image,type1,t2.image,type2);
+							    }
+						    )
 			
-			  | < GE>  e2=mathExp()
-			  {
-			      num2=e2.eval();	    
-			      flag=num1 >= num2;
-			  }
+			
+			  | < GE>
+				    		(
+					      		 t2=< INTEGER_LITERAL>
+							    {
+							      	 type2="Number";
+							         e1=new RelGEExp(t1.image,type1,t2.image,type2);
+							    }
+							  |
+							  	t2=< STRING_LITERAL>
+							    {
+							      	 type2="String";
+							         e1=new RelGEExp(t1.image,type1,t2.image,type2);
+							    }
+						    )
 		
-			  |  <LT>  e2=mathExp()
-			  {
-			      num2=e2.eval();	   				  flag=num1 < num2;
-			  }
+			  |  <LT>
+				    		(
+					      		 t2=< INTEGER_LITERAL>
+							    {
+							      	 type2="Number";
+							         e1=new RelLTExp(t1.image,type1,t2.image,type2);
+							    }
+							  |
+							  	t2=< STRING_LITERAL>
+							    {
+							      	 type2="String";
+							         e1=new RelLTExp(t1.image,type1,t2.image,type2);
+							    }
+						    )
+			  
 		
-			  |  <LE>  e2=mathExp()
-			  {
-			     num2=e2.eval();	    
-			     flag=num1<=num2;			  }
+			  |  <LE>
+				    		(
+					      		 t2=< INTEGER_LITERAL>
+							    {
+							      	 type2="Number";
+							         e1=new RelLEExp(t1.image,type1,t2.image,type2);
+							    }
+							  |
+							  	t2=< STRING_LITERAL>
+							    {
+							      	 type2="String";
+							         e1=new RelLEExp(t1.image,type1,t2.image,type2);
+							    }
+						    )			
+			  
 			  | 
-			    <EQ>e2=mathExp()
-			    {
-			      num2=e2.eval();
-			      flag=num1==num2;
-			    }
+			    <EQ>
+			    			(
+					      		 t2=< INTEGER_LITERAL>
+							    {
+							      	 type2="Number";
+							         e1=new RelEQExp(t1.image,type1,t2.image,type2);
+							    }
+							  |
+							  	t2=< STRING_LITERAL>
+							    {
+							      	 type2="String";
+							         e1=new RelEQExp(t1.image,type1,t2.image,type2);
+							    }
+						    )
 			  |
-			  	<NE> e2=mathExp()
-			  	{
-			  	  num2=e2.eval();
-			  	  flag=num1!=num2;
-			  	}		  )	
+			  	<NE>
+			  				 (
+					      		 t2=< INTEGER_LITERAL>
+							    {
+							      	 type2="Number";
+							         e1=new RelNEExp(t1.image,type1,t2.image,type2);
+							    }
+							  |
+							  	t2=< STRING_LITERAL>
+							    {
+							      	 type2="String";
+							         e1=new RelNEExp(t1.image,type1,t2.image,type2);
+							    }
+						    )
+		  )	
 
 	 {   
-	  return flag;
+	  return e1;
 	 }
- }
+ 
+}
+
+
 
 
 
 /*
 ------------------------------
-Math Exp
+Math MathExp
 ------------------------------
 */
 
 
-Exp mathExp():
+MathExp mathExp():
 {
-    Exp num1;
-    Exp num2;
+    MathExp num1;
+    MathExp num2;
     int num;
 }
 {
@@ -390,10 +521,10 @@ Exp mathExp():
 
 
 
-Exp term():
+MathExp term():
 {
-	Exp num1;
-	Exp num2;
+	MathExp num1;
+	MathExp num2;
 }
 {
     num1=unary()
@@ -407,9 +538,9 @@ Exp term():
 
 
 
-Exp unary():
+MathExp unary():
 {
-    Exp num1;
+    MathExp num1;
 }
 {
     < MINUS> num1=primary()         { return new NegativeExp(num1);  }
@@ -419,17 +550,22 @@ Exp unary():
 
 
 
-Exp primary():
+MathExp primary():
 {
     Token t;
-    Exp num1;
+    MathExp num1;
 }
 {
     t=<INTEGER_LITERAL>                                   { return new IntegerLiteral(t.image); }
+    
+    
 |   t=< IDENTIFIER >														  {
 														         return new Identifier(t.image,symbolTable);														  }
-|   t=< STRING_LITERAL>									  {      return new StringLiteral(t.image);}  
+														  
+														   
 |   < OPEN_PAR >  num1=mathExp() < CLOSE_PAR >            { return num1; }
+
+
 }
 
 
