@@ -32,11 +32,12 @@ public class Rando
   //Deklarimi i interpretuesit
   public static Interpreter interpreter=new Interpreter();
 
-  //Metoda qe do te kontrolloje per 
-  public static boolean isNumeric(String str)
-  {
-  return str.matches("-?\\d+(\\.\\d+)?");  //match a number with optional '-' and decimal.
-  }
+
+  	//Metoda qe do te kontrolloje per 
+	public static boolean isNumeric(String str)
+	{
+	  return str.matches("-?\\d+(\\.\\d+)?");  //match a number with optional '-' and decimal.
+	}
 
 
   //Metoda Kryesore qe therret te gjithe aplikacionin
@@ -110,6 +111,8 @@ KEYWORDS
 |     < STOP: "stop" >
 |     < DEF : "def" >
 |     < PRINT : "Shkruaj" >
+|     < PRINTLN : "RShkruaj" >
+|     < READ : "Lexo" >
 |     < BEGIN : "Fillim" >
 |     < END : "Fund" >
 |     < OR : "ose" >
@@ -140,7 +143,7 @@ TOKEN :
 |     < ASSIGN: "=" >
 |     < OPEN_PAR: "(" >
 |     < CLOSE_PAR: ")" >
-|     < OPEN_BRACKET:"<[" >
+|     < OPEN_BRACKET:"[" >
 |     < CLOSE_BRACKET:"]" >
 }
 
@@ -190,16 +193,23 @@ void Start():
   Token t;
   boolean b;
   LogicExp l;
+  MathExp e;
   Statement s;
 }
 {
 	(	   Include()
 	 )*
-	 < BEGIN>
-
-	print()
-
-	 < END>
+< BEGIN >
+(
+assign()
+|
+read()
+|
+print()
+|
+println()
+)*
+< END>
 }
 
 
@@ -219,26 +229,128 @@ Statements
 ------------------------------
 */
 
+void assign():
+{	Token t;
+	MathExp e;
+	LogicExp l;
+}
+{	< IDENTIFIER > <ASSIGN >
+	(
+	  	  t=< IDENTIFIER >
+	  	  
+	 	| t=< STRING_LITERAL>
+
+		|  e=mathExp()
+
+		| < OPEN_BRACKET > l=logicExp()  < CLOSE_BRACKET >
+	 	 	)
+}
+
+void read():
+{
+  Token t;
+  Statement stmt=null;}
+{
+  < READ>
+  (
+     t=< IDENTIFIER>
+	{
+		  stmt=new Read(t.image,jin,symbolTable);
+		  stmt.eval();	}
+     (
+       < COMMA >
+        t=< IDENTIFIER>
+         {
+		  stmt=new Read(t.image,jin,symbolTable);
+		  stmt.eval();
+		 }     )*  ) }
+
 void print():
 {
   LogicExp l;
   MathExp e;
-  Token t;}
+  Token t;
+  Statement stmt=null;}
 {
-     (       
+            
   		< PRINT>
   				(
-	  				  	 t=< STRING_LITERAL>
-	  				  	 {
-	  				  	   System.out.println(t.image);	  				  	 }
-	  			  |
-	  			 
-				  		l=logicExp()
-						{
-						  System.out.println(l.eval());
-						}
+	  				  	 t=< STRING_LITERAL> { stmt=new Print(t.image);  }
+	  				  	 
+				 	 |      e=mathExp()  { stmt=new Print(e); }
+	
+				 	 | <OPEN_BRACKET> l=logicExp() { stmt=new Print(l);} <CLOSE_BRACKET>
+						
+				)
+
+				{					stmt.eval();
+				}
+
+				(
+					  < COMMA>
+	
+					    		(
+					  				  	 t=< STRING_LITERAL> { stmt=new Print(t.image);  }
+					  				  	 
+									 	 |      e=mathExp()  { stmt=new Print(e); }
+						
+									 	 | <OPEN_BRACKET> l=logicExp() { stmt=new Print(l);} <CLOSE_BRACKET>
+										
+								)
+	
+					{
+						stmt.eval();
+					}
+				 
+				  				)*
+		
+	}
+
+void println():
+{
+  LogicExp l;
+  MathExp e;
+  Token t;
+  Statement stmt=null;
+}
+{
+     
+       
+  		< PRINTLN>
+  				(
+	  				  	 t=< STRING_LITERAL> { stmt=new Println(t.image);  }
+	  				  	 
+				 	 |      e=mathExp()  { stmt=new Println(e); }
+	
+				 	 | <OPEN_BRACKET> l=logicExp() { stmt=new Println(l);} <CLOSE_BRACKET>
+						
+				)
+
+				{
+					stmt.eval();
+				}
+
+				(
+				  < COMMA>
+
+				    		(
+				  				  	 t=< STRING_LITERAL> { stmt=new Println(t.image);  }
+				  				  	 
+								 	 |      e=mathExp()  { stmt=new Println(e); }
+					
+								 	 | <OPEN_BRACKET> l=logicExp() { stmt=new Println(l);} <CLOSE_BRACKET>
+									
+							)
+
+				{
+					stmt.eval();
+				}
+				 
+				  
 				)*
-	)*}
+		
+	
+}
 
 /*
 ------------------------------
@@ -339,6 +451,7 @@ public LogicExp equalExp():
 public LogicExp literal():
 {
 	LogicExp l1;
+	Token t;
 	
 }
 {
@@ -353,7 +466,7 @@ public LogicExp literal():
 			  {
 				return new FalseLiteral();
 			  }
-		  
+
 
 
 		| l1= relation()
@@ -387,7 +500,10 @@ public LogicExp relation():
 {    
 		 (		    t1=< INTEGER_LITERAL>{ type1="Number"; }
 		  |
-		  	t1=< STRING_LITERAL> { type1="String"; }   
+		  	t1=< IDENTIFIER> { type1="Identifier"; }
+		  |
+		  	t1=< STRING_LITERAL> { type1="String"; }
+   
 		)
 		
 		  (		    	  
@@ -396,14 +512,21 @@ public LogicExp relation():
 					      		 t2=< INTEGER_LITERAL>
 							    {
 							      	 type2="Number";
-							         e1=new RelGTExp(t1.image,type1,t2.image,type2);
+							         e1=new RelGTExp(t1.image,type1,t2.image,type2,symbolTable);
+							    }
+							  |
+							  	t2=< IDENTIFIER>
+							    {
+							      	 type2="Identifier";
+							         e1=new RelGTExp(t1.image,type1,t2.image,type2,symbolTable);
 							    }
 							  |
 							  	t2=< STRING_LITERAL>
 							    {
 							      	 type2="String";
-							         e1=new RelGTExp(t1.image,type1,t2.image,type2);
+							         e1=new RelGTExp(t1.image,type1,t2.image,type2,symbolTable);
 							    }
+
 						    )
 			
 			
@@ -412,13 +535,19 @@ public LogicExp relation():
 					      		 t2=< INTEGER_LITERAL>
 							    {
 							      	 type2="Number";
-							         e1=new RelGEExp(t1.image,type1,t2.image,type2);
+							         e1=new RelGEExp(t1.image,type1,t2.image,type2,symbolTable);
+							    }
+							  |
+							  	t2=< IDENTIFIER>
+							    {
+							      	 type2="Identifier";
+							         e1=new RelGEExp(t1.image,type1,t2.image,type2,symbolTable);
 							    }
 							  |
 							  	t2=< STRING_LITERAL>
 							    {
 							      	 type2="String";
-							         e1=new RelGEExp(t1.image,type1,t2.image,type2);
+							         e1=new RelGEExp(t1.image,type1,t2.image,type2,symbolTable);
 							    }
 						    )
 		
@@ -427,13 +556,19 @@ public LogicExp relation():
 					      		 t2=< INTEGER_LITERAL>
 							    {
 							      	 type2="Number";
-							         e1=new RelLTExp(t1.image,type1,t2.image,type2);
+							         e1=new RelLTExp(t1.image,type1,t2.image,type2,symbolTable);
+							    }
+							  |
+							  	t2=< IDENTIFIER>
+							    {
+							      	 type2="Identifier";
+							         e1=new RelLTExp(t1.image,type1,t2.image,type2,symbolTable);
 							    }
 							  |
 							  	t2=< STRING_LITERAL>
 							    {
 							      	 type2="String";
-							         e1=new RelLTExp(t1.image,type1,t2.image,type2);
+							         e1=new RelLTExp(t1.image,type1,t2.image,type2,symbolTable);
 							    }
 						    )
 			  
@@ -443,13 +578,19 @@ public LogicExp relation():
 					      		 t2=< INTEGER_LITERAL>
 							    {
 							      	 type2="Number";
-							         e1=new RelLEExp(t1.image,type1,t2.image,type2);
+							         e1=new RelLEExp(t1.image,type1,t2.image,type2,symbolTable);
+							    }
+							 |
+							  	t2=< IDENTIFIER>
+							    {
+							      	 type2="Identifier";
+							         e1=new RelLEExp(t1.image,type1,t2.image,type2,symbolTable);
 							    }
 							  |
 							  	t2=< STRING_LITERAL>
 							    {
 							      	 type2="String";
-							         e1=new RelLEExp(t1.image,type1,t2.image,type2);
+							         e1=new RelLEExp(t1.image,type1,t2.image,type2,symbolTable);
 							    }
 						    )			
 			  
@@ -459,13 +600,19 @@ public LogicExp relation():
 					      		 t2=< INTEGER_LITERAL>
 							    {
 							      	 type2="Number";
-							         e1=new RelEQExp(t1.image,type1,t2.image,type2);
+							         e1=new RelEQExp(t1.image,type1,t2.image,type2,symbolTable);
+							    }
+							  | 
+							    t2=< IDENTIFIER>
+							    {
+							      	 type2="Identifier";
+							         e1=new RelEQExp(t1.image,type1,t2.image,type2,symbolTable);
 							    }
 							  |
 							  	t2=< STRING_LITERAL>
 							    {
 							      	 type2="String";
-							         e1=new RelEQExp(t1.image,type1,t2.image,type2);
+							         e1=new RelEQExp(t1.image,type1,t2.image,type2,symbolTable);
 							    }
 						    )
 			  |
@@ -474,13 +621,19 @@ public LogicExp relation():
 					      		 t2=< INTEGER_LITERAL>
 							    {
 							      	 type2="Number";
-							         e1=new RelNEExp(t1.image,type1,t2.image,type2);
+							         e1=new RelNEExp(t1.image,type1,t2.image,type2,symbolTable);
+							    }
+							  | 
+							    t2=< IDENTIFIER>
+							    {
+							      	 type2="Identifier";
+							         e1=new RelNEExp(t1.image,type1,t2.image,type2,symbolTable);
 							    }
 							  |
 							  	t2=< STRING_LITERAL>
 							    {
 							      	 type2="String";
-							         e1=new RelNEExp(t1.image,type1,t2.image,type2);
+							         e1=new RelNEExp(t1.image,type1,t2.image,type2,symbolTable);
 							    }
 						    )
 		  )	
@@ -560,7 +713,7 @@ MathExp primary():
     
     
 |   t=< IDENTIFIER >														  {
-														         return new Identifier(t.image,symbolTable);														  }
+														         return new IdentifierMath(t.image,symbolTable);														  }
 														  
 														   
 |   < OPEN_PAR >  num1=mathExp() < CLOSE_PAR >            { return num1; }

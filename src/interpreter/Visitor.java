@@ -17,7 +17,7 @@ public interface Visitor
 	
 	public int visit(NegativeExp e);
 	
-	public int visit(Identifier e);
+	public int visit(IdentifierMath e);
 	
 	public int visit(IntegerLiteral e);
 	

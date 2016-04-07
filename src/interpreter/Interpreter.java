@@ -49,7 +49,7 @@ public class Interpreter implements Visitor
 	}
 
 	@Override
-	public int visit(Identifier e) {
+	public int visit(IdentifierMath e) {
 		// TODO Auto-generated method stub
 		return 0;
 	}
