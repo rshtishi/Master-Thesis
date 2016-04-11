@@ -66,6 +66,7 @@ public class Rando
       catch (Exception e)
       {
         System.out.println("Error.");
+        System.out.println(e.getMessage());
         Rando.ReInit(System.in);
       }
       catch (Error e)
@@ -145,6 +146,7 @@ TOKEN :
 |     < CLOSE_PAR: ")" >
 |     < OPEN_BRACKET:"[" >
 |     < CLOSE_BRACKET:"]" >
+|     < EVAL:"$" >
 }
 
 TOKEN :
@@ -230,20 +232,39 @@ Statements
 */
 
 void assign():
-{	Token t;
+{	Token t=null,v=null;
 	MathExp e;
 	LogicExp l;
+	Statement stmt=null;
+	String type;
 }
-{	< IDENTIFIER > <ASSIGN >
+{	t=< IDENTIFIER > <ASSIGN >
 	(
-	  	  t=< IDENTIFIER >
+	  	  v=< IDENTIFIER >
+	  	  	{
+	  	  	    type="Identifier";
+				stmt=new Assign(t.image,v.image,type,symbolTable);
+	 		}
 	  	  
-	 	| t=< STRING_LITERAL>
+	 	| v=< STRING_LITERAL>
+	 		{
+	 		  	type="String";				stmt=new Assign(t.image,v.image,type,symbolTable);
+	 		}
+
 
 		|  e=mathExp()
+			{
+			  stmt=new Assign(t.image,e,symbolTable);			}
+		
 
-		| < OPEN_BRACKET > l=logicExp()  < CLOSE_BRACKET >
+		| < OPEN_BRACKET > l=logicExp()
+			{			  stmt=new Assign(t.image,l,symbolTable);
+			}
+		
+		  < CLOSE_BRACKET >
 	 	 	)
+	{
+	  stmt.eval();	}
 }
 
 void read():
@@ -276,6 +297,8 @@ void print():
   		< PRINT>
   				(
 	  				  	 t=< STRING_LITERAL> { stmt=new Print(t.image);  }
+
+	  			     |   < EVAL> t=< IDENTIFIER> {stmt=new Print(t.image,"Identifier",symbolTable);}
 	  				  	 
 				 	 |      e=mathExp()  { stmt=new Print(e); }
 	
@@ -291,6 +314,8 @@ void print():
 	
 					    		(
 					  				  	 t=< STRING_LITERAL> { stmt=new Print(t.image);  }
+
+					  				  	 |   < EVAL> t=< IDENTIFIER> {stmt=new Print(t.image,"Identifier",symbolTable);}
 					  				  	 
 									 	 |      e=mathExp()  { stmt=new Print(e); }
 						
@@ -319,6 +344,8 @@ void println():
   		< PRINTLN>
   				(
 	  				  	 t=< STRING_LITERAL> { stmt=new Println(t.image);  }
+
+	  				 |   < EVAL> t=< IDENTIFIER> {stmt=new Println(t.image,"Identifier",symbolTable);}
 	  				  	 
 				 	 |      e=mathExp()  { stmt=new Println(e); }
 	
@@ -335,6 +362,8 @@ void println():
 
 				    		(
 				  				  	 t=< STRING_LITERAL> { stmt=new Println(t.image);  }
+
+				  				  	 |   < EVAL> t=< IDENTIFIER> {stmt=new Println(t.image,"Identifier",symbolTable);}
 				  				  	 
 								 	 |      e=mathExp()  { stmt=new Println(e); }
 					
@@ -467,6 +496,17 @@ public LogicExp literal():
 				return new FalseLiteral();
 			  }
 
+		| < OPEN_PAR > l1=logicExp() < CLOSE_PAR >
+			  {
+			    return l1;
+			  }
+
+		 
+		
+		| < EVAL> t=< IDENTIFIER>
+			{
+			  return new IdentifierBool(t.image,symbolTable);			}
+
 
 
 		| l1= relation()
@@ -474,10 +514,7 @@ public LogicExp literal():
 				return l1;
 			  }
 
-		| < OPEN_PAR > l1=logicExp() < CLOSE_PAR >
-			  {
-			    return l1;
-			  }
+	
 			
 	
 	 )

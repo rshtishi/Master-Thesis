@@ -17,13 +17,13 @@ public class LogicExpression
 	
 	@Before
 	public void setUp() throws Exception {
-		StringReader reader = new StringReader("a>a ose true ");
+		StringReader reader = new StringReader("1==1 dhe  ('a'>'b' ose 2<4) ");
 		parser=new Rando(reader);
 	}
 	
 
 	@Test
-	public void testMathExp() throws ParseException
+	public void test() throws ParseException
 	{
 		LogicExp e=parser.logicExp();
 		assertEquals(true,e.eval());

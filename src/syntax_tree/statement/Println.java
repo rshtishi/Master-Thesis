@@ -1,15 +1,25 @@
 package syntax_tree.statement;
 
 import syntax_tree.math.*;
+import symbol_table.*;
 import syntax_tree.logic.*;
 
 public class Println extends Statement
 {
 	private Object value;
+	private String type;
+	private LookupTable symbolTable;
 	
 	public Println(String value)
 	{
 		this.value=value;
+	}
+	
+	public Println(String value,String type,LookupTable symbolTable)
+	{
+		this.value=value;
+		this.type=type;
+		this.symbolTable=symbolTable;
 	}
 	
 	public Println(MathExp value)
@@ -27,9 +37,24 @@ public class Println extends Statement
 	{
 		if(value instanceof String)
 		{
-			value=(String) value;
-			value=((String) value).replace("'", "");
-			System.out.println(value);
+			String val=(String) value;
+			if(type=="Identifier")
+			{
+				if(symbolTable.containsKey(val))
+				{
+					System.out.print(symbolTable.getValue(val));
+				}
+				else
+				{
+					System.out.print("null");
+				}
+			}
+			else
+			{
+				value=(String) value;
+				value=((String) value).replace("'", "");
+				System.out.print(value);
+			}
 		}
 		else if(value instanceof MathExp)
 		{
