@@ -203,17 +203,14 @@ void Start():
 	 )*
 < BEGIN >
 (
-assign()
-|
-read()
-|
-print()
-|
-println()
-)*
-< END>
-}
+Block()
 
+)*
+
+< END>
+
+
+}
 
 void Include():
 {}
@@ -225,11 +222,44 @@ void Include():
  
 }
 
+
+
+void Block():
+{}
+{
+  (    
+	< BEGIN >
+	statement()
+	< END>
+	|
+	statement()
+  )}
+
+
+
+
 /*
 ------------------------------
 Statements
 ------------------------------
 */
+
+void statement():
+{}
+{
+  (
+    
+	assign()
+	|
+	read()
+	|
+	print()
+	|
+	println()
+ )
+}
+
+
 
 void assign():
 {	Token t=null,v=null;
