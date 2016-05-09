@@ -18,7 +18,7 @@ public class PrintlnStringLiteral {
 	
 	@Before
 	public void setUp() throws Exception {
-		StringReader reader = new StringReader("RShkruaj 'Rando'");
+		StringReader reader = new StringReader("Fillim RShkruaj 'Rando' Fund");
 		parser=new Rando(reader);
 	}
 	
@@ -28,7 +28,7 @@ public class PrintlnStringLiteral {
 	{
         final ByteArrayOutputStream outContent = new ByteArrayOutputStream();
         System.setOut(new PrintStream(outContent));
-        parser.println();
+        parser.Start();
         assertEquals("Rando", outContent.toString().trim());
 		
 	}

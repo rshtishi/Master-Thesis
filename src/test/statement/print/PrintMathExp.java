@@ -18,7 +18,7 @@ public class PrintMathExp {
 	
 	@Before
 	public void setUp() throws Exception {
-		StringReader reader = new StringReader("Shkruaj (a+1)*2");
+		StringReader reader = new StringReader("Fillim Shkruaj (a+1)*2 Fund");
 		parser=new Rando(reader);
 	}
 	
@@ -28,7 +28,7 @@ public class PrintMathExp {
 	{
         final ByteArrayOutputStream outContent = new ByteArrayOutputStream();
         System.setOut(new PrintStream(outContent));
-        parser.print();
+        parser.Start();
         assertEquals("2", outContent.toString());
 		
 	}

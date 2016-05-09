@@ -18,7 +18,7 @@ public class PrintlnBooleanExp {
 	
 	@Before
 	public void setUp() throws Exception {
-		StringReader reader = new StringReader("RShkruaj [($a==1==1) ose (a==a)]");
+		StringReader reader = new StringReader("Fillim RShkruaj [($a==1==1) ose (a==a)] Fund");
 		parser=new Rando(reader);
 	}
 	
@@ -28,7 +28,7 @@ public class PrintlnBooleanExp {
 	{
         final ByteArrayOutputStream outContent = new ByteArrayOutputStream();
         System.setOut(new PrintStream(outContent));
-        parser.println();
+        parser.Start();
         assertEquals("true", outContent.toString().trim());
 		
 	}

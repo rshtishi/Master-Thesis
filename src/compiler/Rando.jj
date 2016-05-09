@@ -32,6 +32,10 @@ public class Rando
   //Deklarimi i interpretuesit
   public static Interpreter interpreter=new Interpreter();
 
+  //Deklarimi i listes me instruksione statement
+  public static ArrayList<Statement> statementList =new ArrayList< Statement>();
+  
+
 
   	//Metoda qe do te kontrolloje per 
 	public static boolean isNumeric(String str)
@@ -106,14 +110,12 @@ KEYWORDS
 */
 {
       < INCLUDE: "perfshi" >
-|     < IF: "Nqs" >
-|     < WHILE: "Gjersa" >
-|     < DO: "do" >
-|     < STOP: "stop" >
-|     < DEF : "def" >
 |     < PRINT : "Shkruaj" >
 |     < PRINTLN : "RShkruaj" >
 |     < READ : "Lexo" >
+|     < IF : "Nqs" >
+|     < ELSE : "Perndryshe" >
+|     < THEN : "Atehere" >
 |     < BEGIN : "Fillim" >
 |     < END : "Fund" >
 |     < OR : "ose" >
@@ -197,12 +199,17 @@ void Start():
   LogicExp l;
   MathExp e;
   Statement s;
+  ArrayList< Statement> statementArray = new ArrayList< Statement>();
 }
 {
 	(	   Include()
 	 )*
 
-	compoundStatement()
+	statementArray =compoundStatement()
+	{		ListIterator< Statement> iterator=statementArray.listIterator();
+		while(iterator.hasNext())
+			iterator.next().eval();
+	}
 
 
 
@@ -220,18 +227,6 @@ void Include():
 
 
 
-void Block():
-{}
-{
-  (    
-	< BEGIN >
-	statement()
-	< END>
-	|
-	statement()
-  )}
-
-
 
 
 /*
@@ -240,46 +235,113 @@ Statements
 ------------------------------
 */
 
-void compoundStatement():
-{}
+ ArrayList< Statement> compoundStatement():
+{
+  ArrayList< Statement> statementArray = new ArrayList< Statement>();}
 {
   < BEGIN >
-  statements()
-  < END >}
+	 statementArray = statements()
+  < END >
+  {
+    return statementArray;  }}
 
 
-void statements():
-{}
+
+
+ ArrayList< Statement>  statements():
 {
-  statement()
-  (	 statement()
-  )*}
+  ArrayList< Statement> statementArray =new ArrayList< Statement>();
+  ArrayList< Statement> array =new ArrayList< Statement>();}
+{
+  array=statement()
+  {
+    statementArray.addAll(array);  }
+  (	 array=statement()
+	 {		statementArray.addAll(array);
+	 }
+  )*
+  {
+    return statementArray;  }}
 
 
-void statement():
-{}
+ArrayList< Statement> statement():
+{
+	ArrayList< Statement> statementArray =new ArrayList< Statement>();
+}
 {
   (
-    compoundStatement()
+    statementArray=compoundStatement()
   	| 
-	assign()
+	statementArray=assign()
 	|
-	read()
+	statementArray=read()
 	|
-	print()
+	statementArray=print()
 	|
-	println()
+	statementArray=println()
+	|
+	statementArray=If() 
  )
+	 {
+	   return statementArray;	 }
+	 
+}
+
+ArrayList< Statement> If():
+{
+  	int position=0;
+	LogicExp cond;
+	Statement stmt;
+	ArrayList<LogicExp> condArray =new ArrayList<LogicExp>();
+	ArrayList< Statement> array =new ArrayList< Statement>();
+	ArrayList< Statement> statementArray =null;}
+{
+
+   (	<IF> <OPEN_PAR > cond=logicExp() <CLOSE_PAR> < THEN>
+          array=statement()
+          {
+             stmt=new If(cond,array);
+             statementArray =new ArrayList< Statement>();
+             condArray.add(cond);
+             position=0;
+             statementArray.add(stmt);          }
+
+
+     (       < ELSE> < IF > <OPEN_PAR > cond=logicExp() <CLOSE_PAR> < THEN>
+     	  array=statement()
+          {
+             position++;
+             stmt=new If(cond,array,condArray,position);
+             condArray.add(cond);
+
+             statementArray.add(stmt);
+          }
+      )*
+| 
+      (
+       < EVAL>< ELSE> array=statement()
+       {
+             position++;
+             stmt=new Else(array,condArray);
+             statementArray.add(stmt);
+       }
+      )
+
+      
+	)+
+	{
+	  return statementArray;	}
 }
 
 
 
-void assign():
+ArrayList< Statement> assign():
 {	Token t=null,v=null;
 	MathExp e;
 	LogicExp l;
 	Statement stmt=null;
 	String type;
+	ArrayList< Statement> statementArray =new ArrayList< Statement>();
 }
 {	t=< IDENTIFIER > <ASSIGN >
 	(
@@ -307,34 +369,40 @@ void assign():
 		  < CLOSE_BRACKET >
 	 	 	)
 	{
-	  stmt.eval();	}
+	  	statementArray.add(stmt);
+	  	return statementArray;	}
 }
 
-void read():
+ArrayList< Statement> read():
 {
   Token t;
-  Statement stmt=null;}
+  Statement stmt=null;
+  ArrayList< Statement> statementArray =new ArrayList< Statement>();}
 {
   < READ>
   (
      t=< IDENTIFIER>
 	{
 		  stmt=new Read(t.image,jin,symbolTable);
-		  stmt.eval();	}
+		  	statementArray.add(stmt);	}
      (
        < COMMA >
         t=< IDENTIFIER>
          {
 		  stmt=new Read(t.image,jin,symbolTable);
-		  stmt.eval();
-		 }     )*  ) }
+		  	statementArray.add(stmt);
+		 }     )*
 
-void print():
+     {		return statementArray;
+     }  ) }
+
+ArrayList<Statement> print():
 {
   LogicExp l;
   MathExp e;
   Token t;
-  Statement stmt=null;}
+  Statement stmt=null;
+  ArrayList< Statement> statementArray =new ArrayList< Statement>();}
 {
             
   		< PRINT>
@@ -349,7 +417,7 @@ void print():
 						
 				)
 
-				{					stmt.eval();
+				{					statementArray.add(stmt);
 				}
 
 				(
@@ -367,19 +435,22 @@ void print():
 								)
 	
 					{
-						stmt.eval();
+						statementArray.add(stmt);
 					}
 				 
 				  				)*
+				{
+				  return statementArray;				}
 		
 	}
 
-void println():
+ ArrayList< Statement> println():
 {
   LogicExp l;
   MathExp e;
   Token t;
   Statement stmt=null;
+  ArrayList< Statement> statementArray =new ArrayList< Statement>();
 }
 {
      
@@ -397,7 +468,7 @@ void println():
 				)
 
 				{
-					stmt.eval();
+					statementArray.add(stmt);
 				}
 
 				(
@@ -415,12 +486,13 @@ void println():
 							)
 
 				{
-					stmt.eval();
+					statementArray.add(stmt);
 				}
 				 
 				  
 				)*
-		
+		{			return statementArray;
+		}
 	
 }
 

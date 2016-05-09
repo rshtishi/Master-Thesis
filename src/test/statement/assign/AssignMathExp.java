@@ -18,7 +18,7 @@ public class AssignMathExp {
 	
 	@Before
 	public void setUp() throws Exception {
-		StringReader reader = new StringReader("Fillim a=2*3+2 Shkruaj $a  Fund");
+		StringReader reader = new StringReader("Fillim a=2*3+2+b Shkruaj $a  Fund");
 		parser=new Rando(reader);
 	}
 	

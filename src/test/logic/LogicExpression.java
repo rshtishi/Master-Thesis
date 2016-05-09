@@ -17,7 +17,7 @@ public class LogicExpression
 	
 	@Before
 	public void setUp() throws Exception {
-		StringReader reader = new StringReader("1==1 dhe  ('a'>'b' ose 2<4) ");
+		StringReader reader = new StringReader("(1==1) dhe  ('a'>'b' ose 2<4) ");
 		parser=new Rando(reader);
 	}
 	
