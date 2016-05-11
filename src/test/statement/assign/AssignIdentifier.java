@@ -18,7 +18,7 @@ public class AssignIdentifier {
 	
 	@Before
 	public void setUp() throws Exception {
-		StringReader reader = new StringReader("Fillim a=a Shkruaj a  Fund");
+		StringReader reader = new StringReader("Fillim a=$a Shkruaj a  Fund");
 		parser=new Rando(reader);
 	}
 	

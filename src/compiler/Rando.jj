@@ -113,8 +113,11 @@ KEYWORDS
 |     < PRINT : "Shkruaj" >
 |     < PRINTLN : "RShkruaj" >
 |     < READ : "Lexo" >
+|     < DO : "Bej" >
+|     < WHILE : "Gjersa" >
 |     < IF : "Nqs" >
 |     < ELSE : "Perndryshe" >
+|     < ELSEIF : "PerndrysheNqs" >
 |     < THEN : "Atehere" >
 |     < BEGIN : "Fillim" >
 |     < END : "Fund" >
@@ -280,12 +283,55 @@ ArrayList< Statement> statement():
 	|
 	statementArray=println()
 	|
-	statementArray=If() 
+	statementArray=If()
+	|
+	statementArray=While()
+	|
+	statementArray=doWhile()
  )
 	 {
 	   return statementArray;	 }
 	 
 }
+
+ArrayList< Statement> doWhile():
+{
+  LogicExp cond=null;
+  Statement stmt=null;
+  ArrayList< Statement> array =null;
+  ArrayList< Statement> statementArray=new ArrayList< Statement>();}
+{
+    < DO>
+    	array=statement()
+	<WHILE> < OPEN_PAR> cond=logicExp()  <CLOSE_PAR >
+
+	{
+	  stmt=new DoWhile(cond,array);
+	  statementArray.add(stmt);
+	}
+  	
+  	{
+		return statementArray;
+	}}
+
+
+ArrayList< Statement> While():
+{
+  LogicExp cond=null;
+  Statement stmt=null;
+  ArrayList< Statement> array=null;
+  ArrayList< Statement> statementArray =new ArrayList< Statement>();}
+{
+  	<WHILE> < OPEN_PAR> cond=logicExp()  <CLOSE_PAR > < DO>
+	array=statement()
+	{
+	  stmt=new While(cond,array);
+	  statementArray.add(stmt);	}
+  	
+  	{		return statementArray;
+	}
+}
+
 
 ArrayList< Statement> If():
 {
@@ -307,7 +353,7 @@ ArrayList< Statement> If():
              statementArray.add(stmt);          }
 
 
-     (       < ELSE> < IF > <OPEN_PAR > cond=logicExp() <CLOSE_PAR> < THEN>
+     (       < ELSEIF> <OPEN_PAR > cond=logicExp() <CLOSE_PAR> < THEN>
      	  array=statement()
           {
              position++;
@@ -317,18 +363,18 @@ ArrayList< Statement> If():
              statementArray.add(stmt);
           }
       )*
-| 
+	
       (
-       < EVAL>< ELSE> array=statement()
+       < ELSE> array=statement()
        {
              position++;
              stmt=new Else(array,condArray);
              statementArray.add(stmt);
        }
-      )
+      )?
 
       
-	)+
+	)
 	{
 	  return statementArray;	}
 }
@@ -345,7 +391,7 @@ ArrayList< Statement> assign():
 }
 {	t=< IDENTIFIER > <ASSIGN >
 	(
-	  	  v=< IDENTIFIER >
+	  	 < EVAL>  v=< IDENTIFIER >
 	  	  	{
 	  	  	    type="Identifier";
 				stmt=new Assign(t.image,v.image,type,symbolTable);

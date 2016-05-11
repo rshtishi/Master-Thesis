@@ -18,7 +18,7 @@ public class AssignBooleanIdentifier
 	
 	@Before
 	public void setUp() throws Exception {
-		StringReader reader = new StringReader("Fillim a=[true] b=a Shkruaj [$b]  Fund");
+		StringReader reader = new StringReader("Fillim c=[true] d=$c Shkruaj [$d]  Fund");
 		parser=new Rando(reader);
 	}
 	
