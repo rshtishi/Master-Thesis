@@ -113,6 +113,9 @@ KEYWORDS
 |     < PRINT : "Shkruaj" >
 |     < PRINTLN : "RShkruaj" >
 |     < READ : "Lexo" >
+|     < FOR : "Per" >
+|     < UNTIL : "Deri" >
+|     < STEP : "Hapi" >
 |     < DO : "Bej" >
 |     < WHILE : "Gjersa" >
 |     < IF : "Nqs" >
@@ -195,13 +198,7 @@ int one_line() :
 
 void Start():
 {
-  MathExp r;
-  int val;
-  Token t;
-  boolean b;
-  LogicExp l;
-  MathExp e;
-  Statement s;
+  Statement stmt=null;
   ArrayList< Statement> statementArray = new ArrayList< Statement>();
 }
 {
@@ -209,9 +206,9 @@ void Start():
 	 )*
 
 	statementArray =compoundStatement()
-	{		ListIterator< Statement> iterator=statementArray.listIterator();
-		while(iterator.hasNext())
-			iterator.next().eval();
+	
+	{
+	    stmt=new Start(statementArray);		stmt.eval();
 	}
 
 
@@ -288,11 +285,39 @@ ArrayList< Statement> statement():
 	statementArray=While()
 	|
 	statementArray=doWhile()
+	|
+	statementArray=forx()
  )
 	 {
 	   return statementArray;	 }
 	 
 }
+
+ArrayList< Statement> forx():
+{
+  Token id=null;
+  MathExp val=null;
+  MathExp limit=null;
+  Token step=null;
+
+  Statement assignStmt=null;
+  LogicExp forEval=null;
+  Statement for0=null;
+  
+
+  ArrayList< Statement> array =null;
+  ArrayList< Statement> statementArray=new ArrayList< Statement>();}
+{
+  < FOR > id=< IDENTIFIER> < ASSIGN> val=mathExp() < UNTIL> limit=mathExp() < STEP> step=< INTEGER_LITERAL>
+  {
+     assignStmt=new Assign(id.image,val,symbolTable);
+     forEval=new ForEval(id.image,limit,symbolTable);
+     array=statement();
+     for0=new For(assignStmt,forEval,array,step.image,id.image,symbolTable);
+     statementArray.add(for0);  }
+
+  {
+    return statementArray;  }}
 
 ArrayList< Statement> doWhile():
 {

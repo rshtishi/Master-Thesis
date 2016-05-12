@@ -18,7 +18,7 @@ public class AssignMathIdentifier
 	
 	@Before
 	public void setUp() throws Exception {
-		StringReader reader = new StringReader("Fillim a=1+a b=$a Shkruaj $b  Fund");
+		StringReader reader = new StringReader("Fillim a=1+a b=a%2 Shkruaj $b  Fund");
 		parser=new Rando(reader);
 	}
 	
