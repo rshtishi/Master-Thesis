@@ -42,7 +42,10 @@ public class Print extends Statement
 			{
 				if(symbolTable.containsKey(val))
 				{
-					System.out.print(symbolTable.getValue(val));
+					if(symbolTable.getType(val).equals("String"))
+						System.out.print(symbolTable.getValue(val).replace("'", ""));
+					else
+						System.out.print(symbolTable.getValue(val));
 				}
 				else
 				{

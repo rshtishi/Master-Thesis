@@ -1,6 +1,8 @@
 package syntax_tree.statement;
 import java.util.Scanner;
 
+import javax.swing.JOptionPane;
+
 import symbol_table.*;
 
 public class Read extends Statement
@@ -25,7 +27,8 @@ public class Read extends Statement
 
 	public void eval() 
 	{
-		  String value=jin.next();
+		  //String value=jin.next();
+		  String value=JOptionPane.showInputDialog(null,"Ndryshorja "+id);
 		  String type;
 		  if(value.equals("true") || value.equals("false") )
 		  {

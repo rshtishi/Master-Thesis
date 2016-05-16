@@ -17,6 +17,11 @@ import syntax_tree.logic.*;
 import syntax_tree.statement.*;
 import interpreter.*;
 
+import java.awt.BorderLayout;
+import javax.swing.*;
+import gui.*;
+import java.io.*;
+
 
 
 public class Rando
@@ -45,8 +50,15 @@ public class Rando
 
 
   //Metoda Kryesore qe therret te gjithe aplikacionin
-  public static void main(String args[]) throws ParseException
+  public static void main(String args[]) throws ParseException,IOException
   {
+        JFrame frame= new CFrame();
+       
+        frame.setExtendedState(JFrame.MAXIMIZED_BOTH); 
+        frame.setLocationRelativeTo(null ); // Center the frame
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setVisible(true);
+    /*
      Rando parser = new Rando(System.in);
 	     int x=0;
      while (x==0)
@@ -80,6 +92,9 @@ public class Rando
         break;
       }
     }
+    */
+
+
      //parser.Start();
   }
   
