@@ -55,6 +55,7 @@ public class Println extends Statement
 				value=((String) value).replace("'", "");
 				System.out.print(value);
 			}
+			System.out.println();
 		}
 		else if(value instanceof MathExp)
 		{

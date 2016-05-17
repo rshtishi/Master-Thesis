@@ -103,7 +103,7 @@ public class RelNEExp extends LogicExp
 	       	}
 	       	else
 	       	{
-		       	return false;
+		       	return true;
 	       	}
 
 		}//end Identifier Number
@@ -128,7 +128,7 @@ public class RelNEExp extends LogicExp
 	       	}
 	       	else
 	       	{
-		       	return false;
+		       	return true;
 	       	}
 		} //end Number Identifier
 		else if(t1.equals("Identifier") && t2.equals("String"))
@@ -157,7 +157,7 @@ public class RelNEExp extends LogicExp
 	       	}
 	       	else
 	       	{
-		       	return false;
+		       	return true;
 	       	}
 		} //end Identifier String Identifier
 		else if(t1.equals("String") && t2.equals("Identifier"))
@@ -186,12 +186,12 @@ public class RelNEExp extends LogicExp
 	       	}
 	       	else
 	       	{
-		       	return false;
+		       	return true;
 	       	}
 		}//end String Identitifier
 		else
 		{
-			return false;
+			return true;
 		}
 	}
 
