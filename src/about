@@ -1,0 +1,201 @@
+Rreth Intepretuesit
+
+Interpretuesi eshte programi qe merret perkthimin e pseudokodit te shkruar ne hapsiren ne kodit ne rezultat.
+Gjuha qe mund te kuptohet nga interpretuesit eshte nje gjuhe e thjeshte proceduriale e gjashme me pseudokodin
+qe mesohet nga studentet e vitit te pare te informatikes.
+
+Funksionet e printimit te rezultatit
+
+Shkruaj eshte funksioni qe printon informacion qe shfaqet ne hapsire e rezultatit
+Mund te marrre disa parametra te tipeve te ndryshme qe ndahen ne presje.
+
+Shembull 1
+----------------------
+
+Fillim
+       Shkruaj 11111
+       Shkruaj ' String' ,2222
+Fund
+------------------------------------------------------------------------------------------------------------
+
+RShkruaj eshte funksioni qe printon  informacion qe shfaqet ne hapsiren e rezultatit, por ne dallim nga
+Shkruaj  ai printon ne rresht te ri.
+
+Shembull 2
+------------------
+Fillim 
+       RShkruaj 11111
+       RShkruaj ' String' ,2222
+Fund 
+-----------------------------------------------------------------------------------------------------------------
+
+Ndryshoret perdoret per te ruajtur informacion,ne kete gjuhe nuk kerkohet te specifikohet tipi i ndryshores.
+Nje ndryshoret mund te marre vlera te tipeve te ndryshme. Per te printuar ndryshore qe kane vlera numerike nuk
+eshte nevojshme te kemi simbolin $, per ndryshoret qe jane stringje ose vlera llogjike duhet patjeter te shoqerohen
+me prefikesin $.
+
+Shembulli 3
+-------------------
+
+Fillim 
+           a=1 
+           RShkruaj a
+          RShkruaj $a
+          a=[true]
+          RShkruaj $a
+          a='Rando'
+          RShkruaj $a
+Fund 
+-------------------------------------------------------------------------------------------------------------------
+
+Printimi i shprehjeve arihemtike. Precedensa e vleresimit te shprehjeve arihmetike eshte si me poshte
+*,/,% dhe +,- . Shprehja qe ndodhet brenda kllapave do te vleresohet e para dhe ajo ka prioritet me te larte.
+
+Shembull 4
+----------------------
+Fillim 
+           RShkruaj 1+2*2*(1+4)
+           RShkruaj 1+2*2*1+4
+Fund 
+--------------------------------------------------------------------------------------------------------------------
+
+Printimi i shprehjeve arihmetike qe kane edhe ndryshore. Nje ndryshore qe ka vlere numerike mund te jete pjese
+e shprehjes arihmetike si cdo shifer.
+
+Shembulli 5
+----------------------
+Fillim 
+           a=2
+           RShkruaj 1+a*2*(1+4)
+           RShkruaj 1+a*2*1+4
+Fund 
+---------------------------------------------------------------------------------------------------------------------
+
+Printimi i shprehjeve llogjike behet duke i vendosur shprehjen llogjike brenda kllapave katrore.
+Ne shprehjet llogjike mund te krahasohet ndryshore te vlera te ndryshme , por nese kane tipe te ndryshme do te kthehet false.
+Per te caktuar diference ndermjet ndryshoreve qe kane vlera llogjike (boolean ) dhe ndryshore te tipit te tjera  perdoret simbolin
+$. Ndryshoret me vlera boolean kane simbolin $ si prefiks, per ti dalluar nga ndryshoret qe nuk jane boolean.
+Per te lidhur dy shpreje llogjike bashke perdorim lidhese dhe  , ose. Per te marrim te kunderten e vleres perdorim operatorin e
+mohimit !.
+
+Shembulli 6
+------------------
+Fillim 
+           RShkruaj [1!=1]
+           RShkruaj  [1==2 ose 1==1]
+           RShkruaj  ['a'==1 dhe 2==2]
+Fund 
+-----------------------------------------------------------------------------------------------------------------------
+
+Shembulli 7
+---------------------
+Fillim 
+           a=1
+           b='b'
+           c=[true]
+           RShkruaj [1!=a]
+           RShkruaj  [a==2 ose a==1]
+           RShkruaj  ['a'==a dhe 2==2]
+           RShkruaj [$c]
+           RShkruaj [$c==false]
+           RShkruaj [$c==false ose b!=1]
+Fund 
+------------------------------------------------------------------------------------------------------------------------
+
+Per te lexuar te dhena nga perdoreusit perdoret funksioni Lexo dhe caktohen ndryshoret qe do te lexohen.
+Nese kemi me shume se nje ndryshore qe duam te lexojme atehere ndryshoret i ndajme nga njera -tjetra me presje.
+
+Shembulli 8
+-----------------------
+Fillim
+           Lexo a
+           Shkruaj $a
+          Lexo b,c,d
+          Shkruaj $b,$c,$d 
+Fund
+--------------------------------------------------------------------------------------------------------------------------
+
+Strukturat perzgjedhese Nqs , Pendryshe Nqs perdoren per te percaktuar ekzekutimin e nje instruksioni mbi bazen  kushtit
+qe eshte vendosur ne strutkturat perzgjehdese.
+
+Shembulli 9
+-------------------------
+Fillim
+          RShkruaj 'Jep nje number'
+          Lexo a
+          a=a%2
+          Nqs(a==0)    Atehere
+                           RShkruaj 'Numri qe futet eshte cift'
+          Perndryshe
+                          RShkruaj  'Numri qe futet eshte tek'
+Fund 
+-------------------------------------------------------------------------------------------------------------------------- 
+
+Shembulli 10
+------------------------
+
+Fillim
+          RShkruaj 'Jep nje number'
+          Lexo a
+          a=a%4
+          Nqs(a==0)    Atehere
+                           RShkruaj 'Numri plotespjestohet me 4'
+       PerndrysheNqs (a==1) Atehere
+	 RShkruaj 'Numri nuk plotepjestohet me 4 mbetja eshte 1' 
+          PerndrysheNqs(a==2)    Atehere
+                          RShkruaj  'Numri nuk plotepjestoeht me 4  ka mbetjen 2'
+          PerndrysheNqs(a==3)    Atehere
+                          RShkruaj  'Numri nuk plotepjestoeht me 4 ka mbetjen 3'
+Fund 
+-----------------------------------------------------------------------------------------------------------------------------
+
+Strukturat perseritese qe ofron ky intepretues jane Gjersa, Bej Gjersa, Per Deri . Strukturat perseritese perserisn ekzekutimin
+e nje instruksioni aq here sac plotesohet kushti.
+
+Shembulli 11
+------------------------
+Fillim
+	a=0
+	Gjersa(a<10)  Bej
+	Fillim
+	         Shkruaj a,'    '
+	        a=a+1
+	Fund
+Fund
+--------------------------------------------------------------------------------------------------------------------------------
+
+Shembulli 12
+
+Fillim
+	a=0
+	Bej
+	Fillim
+  	           Shkruaj a,'   '
+	          a=a+1
+	Fund 
+	Gjersa(a<10)
+Fund
+
+--------------------------------------------------------------------------------------------------------------------------------
+
+Shembulli 13
+-------------------
+Fillim
+            Per a=1 Deri 10 Hapi 1 Bej
+                  Shkruaj  a-1,'  '
+Fund
+--------------------------------------------------------------------------------------------------------------------------------
+
+
+Shembulli 14
+---------------------
+Fillim
+            Per a=1 Deri 10 Hapi 1 Bej
+             Fillim
+				Per j=1 Deri 10-a Hapi 1 Bej
+                       Shkruaj '*'
+                RShkruaj ''
+             Fund
+Fund
+--------------------------------------------------------------------------------------------------------------------------------
+

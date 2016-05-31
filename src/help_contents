@@ -1,0 +1,34 @@
+Permbajtja
+
+Editori eshte perbere:
+
+Nga menuja krysore qe ka menute:
+
+File qe merret me manipulimin e informacionit qe keni shkruar ne editorin e kodit. Kjo menu
+ka kater nen menu.
+Nen menuja new krijon nje skedar te ri me emrin Untitled_x , ky x eshte numri i hereve qe kemi shtypur nen
+menune new.
+Nen menuja open jep mundesine e zgjedhjes se ciles skedar do te hapesh per ta shfaqur te hapsira ku shkruhet kodi.
+Nen menuja save ruan informacionit qe ndodhet te hapsira e kodit te skedari qe ne kemi hapur ose kemi krijuar te ri.
+Nen menuja exit sherben per te dalur nga programi.
+
+Edit eshte menuja qe merret me editimin e informacionit qe ndodhet te hapsira ku shkruhet kodi. Ajo ka kater
+pese nen menu.
+Nen menuja undo qe sherben per kthyer mbrapsht ndryshimet e bera ne hapsiren e kodit.
+Nen menuja redo qe sherben per rikthyer ndryshimet e kthyera mbrapsht nga nen menuja undo.
+Nen menuja cut qe sherben per fshire informacionin nga hapsira e teksit dhe ruajtjen e saj ne memorien e kompjuter.
+Nen menuja copy qe sherben per te ruajtur informacionin ne memorien e kompjuter pa fshire informacionin nga hapsira
+e shkrimit te kodit.
+Nen menuja paste qe sherben per te ngjitur informacionin e ruajtur memorien e kompjuter kudo qe ne pozicionojme
+kursorin  ne hapsiren e shkrimit te kodit.
+
+Menuja run  merret me menaxhimin e rezultatit qe shfaqet te hapsira per shfajqen e rezultatit, ajo ka dy nen menu.
+Nen menuja run qe merr kodin e shkruaj ne hapsiren e kodit dhe dergon te interpretuesit i cili e interpreton 
+dhe kthen rezultatin. Rezultatin e intepretimit te kodit e shfaq ne hapsira e rezultatit.
+Nen menuja clear sherben per te pastruar hapsiren e rezultatit nga rezultat e interpretimeve te meparshme.
+
+Menuja window merret me menaxhimin e madhesise se dritarese se programit. Ajo ka kater nen menu small, medium, large dhe fullscreen.
+
+Menuja Help eshte menuja qe mban inforamcione mbi programin e editorit dhe interpretuesit. Ajo ka tre nen menu Welcome,Help Contents 
+dhe About Rando Compiler.
+

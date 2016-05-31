@@ -1,0 +1,16 @@
+Miresevini!!!
+
+Ky editor eshte ndertuar per te lehtesuar , shkrimin e pseudokodit qe do te perkthehet ne rezultat.
+Editor nuk eshte pergjegjes per perkthimin e kodit ne rezultat, kjo realizohet nga intepretues , editor ka 
+si detyre marrjen e pseudokodit te shkruar nga perdoruesi dhe dergimi i tij te interpretuesi  per perkthim.
+Nese ka gabime editori do te marre informacionin nga intepretuesi dhe do ja shfaqe  perdoruesit.
+
+Programi i editor-it dhe interepretuesit jane pa pagese. Qellimi i zhvillimit ketij  programi
+ishte dhe vazhdon te jete te ndihmoje studentet e informatikes  dhe teknologjise se informacionit ne
+shkrimin e pseudokodit dhe  kuptimi i strukturave perseritese(ciklet) dhe strukturat perzgjedhese(kushtet if).
+
+Pseudokodi qe do te shkruhet eshte ne shqip dhe eshte shume i thjeshtuar, nuk perfshin koncepte programi te avancuara
+si programi i orientuar ne objekte.
+
+
+
